@@ -1,17 +1,19 @@
 ---
 
 - name: Install ntp
-  apt: name=ntp update_cache=yes cache_valid_time=3600
+  apt: name=chrony update_cache=yes cache_valid_time=3600
 
 - name: copy hosts file
   template: src=hosts.j2 dest=/etc/hosts
 
-- name: install ubuntu-cloud-keyring
-  apt: name=ubuntu-cloud-keyring
+- name: Enable the OpenStack repository
+  apt: name=software-properties-common
 
-- name: enable openstack repository
-  script: enable_openstack_repository.sh
+- name: Add apt repository
+  command: add-apt-repository cloud-archive:liberty -y
 
 - name: upgrade packages
   apt: update_cache=yes upgrade=dist
 
+- name: Install the OpenStack client
+  apt: update_cache=yes name=python-openstackclient

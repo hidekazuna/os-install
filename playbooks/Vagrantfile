@@ -1,3 +1,4 @@
+# -*- mode: ruby -*-
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -10,15 +11,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     cont.vm.provider :virtualbox do |vm|
       vm.memory = 4096
     end
-  end
-
-  config.vm.define "network" do |net|
-    net.vm.box = "ubuntu/trusty64"
-    net.vm.hostname = "network"
-    net.vm.network "private_network", ip: "10.1.0.21"
-    net.vm.network "private_network", ip: "10.1.1.21", virtualbox__intnet: "tunnel"
-    net.vm.provider :virtualbox do |vm|
-      vm.memory = 2048
+    cont.vm.provision "ansible" do |ansible|
+      ansible.playbook = "controllers.yml"
+      ansible.raw_arguments = ['-T 30', '-e pipelining=True']
     end
   end
 

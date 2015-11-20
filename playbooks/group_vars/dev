@@ -5,6 +5,9 @@ network_mgmt_ip: 10.1.0.21
 NETWORK_TUNNEL_IP: 10.1.1.21
 compute1_mgmt_ip: 10.1.0.31
 COMPUTE1_TUNNEL_IP: 10.1.1.31
+block1_mgmt_ip: 10.1.0.41
+object1_mgmt_ip: 10.1.0.51
+object2_mgmt_ip: 10.1.0.52
 
 RABBIT_PASS: password
 KEYSTONE_DBPASS: password

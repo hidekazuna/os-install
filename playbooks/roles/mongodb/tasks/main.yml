@@ -1,0 +1,15 @@
+---
+
+- name: Install the MongoDB packages
+  apt: name={{ item }}
+  with_items:
+    - mongodb-server
+    - mongodb-clients
+    - python-pymongo
+
+- name: Edit /etc/mongodb.conf
+  lineinfile: dest=/etc/mongodb.conf line="bind_ip = {{ controller_mgmt_ip }}" regexp="^bind_ip"
+  notify:
+    - "Stop MongoDB"
+    - "Remove initial journal"
+    - "Start MongoDB"

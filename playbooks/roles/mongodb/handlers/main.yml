@@ -1,0 +1,10 @@
+---
+
+- name: Stop MongoDB
+  service: name=mongodb state=stopped
+
+- name: Remove initial journal
+  command: rm /var/lib/mongodb/journal/prealloc.*
+
+- name: Start MongoDB
+  service: name=mongodb state=started

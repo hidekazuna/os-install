@@ -2,6 +2,7 @@
   roles:
     - common
     - mariadb
+    - mongodb
     - rabbitmq
     - keystone
     - glance

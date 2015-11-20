@@ -1,4 +1,6 @@
-Ansible playbooks for deploying OpenStack following http://docs.openstack.org/kilo/install-guide/install/apt/content/
+**WIP** Migration to Liberty(15.10)
+
+Ansible playbooks for deploying OpenStack following http://docs.openstack.org/liberty/install-guide-ubuntu/
 
 ## limitations
 

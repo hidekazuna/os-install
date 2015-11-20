@@ -59,5 +59,3 @@
 - name: Create projects, users, and roles
   script: create_tenants_users_roles.sh {{ ADMIN_PASS }} {{ DEMO_PASS }}
   environment: temp_auth_token
-
-

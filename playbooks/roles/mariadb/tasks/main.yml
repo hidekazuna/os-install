@@ -5,12 +5,10 @@
   with_items:
     - mariadb-server
     - python-mysqldb
+    - python-pymysql
 
 - name: create mariadb configuration file
   template: src=mysqld_openstack.cnf dest=/etc/mysql/conf.d/mysqld_openstack.cnf
-
-- name: restart mariadb
-  service: name=mysql state=restarted
+  notify: restart mariadb
 
 # TODO:mysql_secure_installation
-
