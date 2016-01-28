@@ -5,6 +5,7 @@
     - mongodb
     - rabbitmq
     - keystone
+    - client
     - glance
     - nova
     - neutron

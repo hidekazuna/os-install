@@ -1,1 +1,6 @@
 ---
+
+cirros_img_host_url: http://download.cirros-cloud.net
+cirros_version: 0.3.4
+cirros_img_file_name: cirros-{{ cirros_version }}-x86_64-disk.img
+cirros_img_src_url: "{{ cirros_img_host_url }}/{{ cirros_version }}/{{ cirros_img_file_name }}"

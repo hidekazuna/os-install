@@ -38,5 +38,17 @@
 - name: remove the SQLite database file
   file: path=/var/lib/glance/glance.sqlite state=absent
 
+- name: Download CirrOS
+  get_url: url={{ cirros_img_src_url }} dest=/home/vagrant/
+  register: get_url_result
+  until: get_url_result.state == 'file'
+  retries: 5
+  delay: 1
 
+- name: Register CirrOS
+  script: upload_the_image_to_the_image_service.sh {{ cirros_img_file_name }}
+  environment: admin_openrc
+  sudo: no
 
+- name: Remove tmp CirrOS image
+  file: path=/home/vagrant/{{ cirros_img_file_name }} state=absent

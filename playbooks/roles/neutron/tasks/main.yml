@@ -19,7 +19,11 @@
   with_items:
     - neutron-server
     - neutron-plugin-ml2
+    - neutron-plugin-linuxbridge-agent
+    - neutron-dhcp-agent
+    - neutron-metadata-agent
     - python-neutronclient
+    - conntrack
 
 - name: edit neutron conf file
   template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf

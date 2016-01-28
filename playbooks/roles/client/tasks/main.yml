@@ -1,0 +1,7 @@
+---
+
+- name: Edit the admin-openrc.sh
+  template: src=admin-openrc.sh.j2 dest=/home/vagrant/admin-openrc.sh
+
+- name: Edit the demo-openrc.sh
+  template: src=demo-openrc.sh.j2 dest=/home/vagrant/demo-openrc.sh

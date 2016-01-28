@@ -2,6 +2,8 @@
 
 - name: Install ntp
   apt: name=chrony update_cache=yes cache_valid_time=3600
+  notify:
+    - restart ntp server
 
 - name: copy hosts file
   template: src=hosts.j2 dest=/etc/hosts

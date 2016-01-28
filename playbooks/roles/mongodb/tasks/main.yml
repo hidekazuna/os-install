@@ -9,7 +9,13 @@
 
 - name: Edit /etc/mongodb.conf
   lineinfile: dest=/etc/mongodb.conf line="bind_ip = {{ controller_mgmt_ip }}" regexp="^bind_ip"
-  notify:
-    - "Stop MongoDB"
-    - "Remove initial journal"
-    - "Start MongoDB"
+
+- name: Stop MongoDB
+  service: name=mongodb state=stopped
+
+- name: Remove initial journal
+  command: rm /var/lib/mongodb/journal/prealloc.*
+  ignore_errors: yes
+
+- name: Start MongoDB
+  service: name=mongodb state=started
