@@ -8,11 +8,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     cont.vm.box = "ubuntu/trusty64"
     cont.vm.hostname = "controller"
     cont.vm.network "private_network", ip: "10.1.0.11"
+    cont.vm.network "private_network", ip: "10.1.1.11"
     cont.vm.provider :virtualbox do |vm|
       vm.memory = 4096
     end
     cont.vm.provision "ansible" do |ansible|
       ansible.playbook = "controllers.yml"
+      ansible.inventory_path = "dev"
       ansible.raw_arguments = ['-T 30', '-e pipelining=True']
     end
   end
@@ -21,7 +23,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     com1.vm.box = "ubuntu/trusty64"
     com1.vm.hostname = "compute1"
     com1.vm.network "private_network", ip: "10.1.0.31"
-    com1.vm.network "private_network", ip: "10.1.1.31", virtualbox__intnet: "tunnel"
+    com1.vm.network "private_network", ip: "10.1.1.31"
+    com1.vm.provider :virtualbox do |vm|
+      vm.memory = 2048
+    end
+    com1.vm.provision "ansible" do |ansible|
+      ansible.playbook = "computes.yml"
+      ansible.inventory_path = "dev"
+      ansible.raw_arguments = ['-T 30', '-e pipelining=True']
+    end
   end
 
 #  config.vm.provision "ansible" do |ansible|
