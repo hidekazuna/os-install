@@ -29,6 +29,8 @@ admin_openrc:
   OS_USERNAME: admin
   OS_PASSWORD: "{{ ADMIN_PASS }}"
   OS_AUTH_URL: http://controller:35357/v3
+  OS_IDENTITY_API_VERSION: 3
+  OS_IMAGE_API_VERSION: 2
 
 demo_openrc:
   OS_PROJECT_DOMAIN_ID: default
@@ -38,6 +40,8 @@ demo_openrc:
   OS_USERNAME: demo
   OS_PASSWORD: "{{ DEMO_PASS }}"
   OS_AUTH_URL: http://controller:5000/v3
+  OS_IDENTITY_API_VERSION: 3
+  OS_IMAGE_API_VERSION: 2
 
 GLANCE_DBPASS: password
 GLANCE_PASS: password
@@ -49,7 +53,7 @@ NEUTRON_DBPASS: password
 NEUTRON_PASS: password
 
 METADATA_SECRET: secret
-INTERFACE_NAME: eth2
+INTERFACE_NAME: eth1
 
 # external network
 EXTERNAL_NETWORK_CIDR: 203.0.113.0/24
@@ -61,4 +65,5 @@ EXTERNAL_NETWORK_GATEWAY: 203.0.113.1
 TENANT_NETWORK_CIDR: 192.168.1.0/24
 TENANT_NETWORK_GATEWAY: 192.168.1.1
 
-TIME_ZONE: Japan
+TIME_ZONE: Asia/Tokyo
+NTP_SERVER: ntp.jst.mfeed.ad.jp
