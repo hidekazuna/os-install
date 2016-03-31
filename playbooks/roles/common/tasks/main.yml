@@ -5,6 +5,21 @@
   notify:
     - restart ntp server
 
+- name: Configure ntp 1
+  lineinfile: dest=/etc/chrony/chrony.conf regexp="^server" state=absent
+
+- name: Configure ntp 2
+  lineinfile: dest=/etc/chrony/chrony.conf
+              line="server {{ NTP_SERVER }} iburst"
+              insertafter="# better to use IP numbers than host names."
+  when: ansible_hostname == "controller"
+
+- name: Configure ntp 3
+  lineinfile: dest=/etc/chrony/chrony.conf
+              line="server controller iburst"
+              insertafter="# better to use IP numbers than host names."
+  when: ansible_hostname != "controller"
+
 - name: copy hosts file
   template: src=hosts.j2 dest=/etc/hosts
 
