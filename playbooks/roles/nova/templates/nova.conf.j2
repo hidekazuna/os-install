@@ -47,3 +47,17 @@ lock_path = /var/lib/nova/tmp
 [vnc]
 vncserver_listen = $my_ip
 vncserver_proxyclient_address = $my_ip
+
+[neutron]
+url = http://controller:9696
+auth_url = http://controller:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = {{ NEUTRON_PASS }}
+
+service_metadata_proxy = True
+metadata_proxy_shared_secret = {{ METADATA_SECRET }}
