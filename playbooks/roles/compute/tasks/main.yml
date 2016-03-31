@@ -9,6 +9,11 @@
 - name: edit nova conf file
   template: src=nova.conf.j2 dest=/etc/nova/nova.conf
 
+- name: Configure libvirt to use QEMU instead of KVM
+  lineinfile: dest=/etc/nova/nova-compute.conf
+              line="virt_type=qemu" regexp="^virt_type"
+  when: virt_type is defined and virt_type == "qemu"
+
 - name: install neutron packages
   apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
   with_items:

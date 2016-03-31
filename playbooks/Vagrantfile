@@ -31,6 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.playbook = "computes.yml"
       ansible.inventory_path = "dev"
       ansible.raw_arguments = ['-T 30', '-e pipelining=True']
+      ansible.extra_vars = { virt_type: "qemu" }
     end
   end
 
