@@ -39,11 +39,12 @@
   file: path=/var/lib/glance/glance.sqlite state=absent
 
 - name: Download CirrOS
-  get_url: url={{ cirros_img_src_url }} dest=/home/vagrant/
+  get_url: url={{ cirros_img_src_url }} dest=~/
   register: get_url_result
   until: get_url_result.state == 'file'
   retries: 5
   delay: 1
+  sudo: no
 
 - name: Register CirrOS
   script: upload_the_image_to_the_image_service.sh {{ cirros_img_file_name }}
@@ -51,4 +52,5 @@
   sudo: no
 
 - name: Remove tmp CirrOS image
-  file: path=/home/vagrant/{{ cirros_img_file_name }} state=absent
+  file: path=~/{{ cirros_img_file_name }} state=absent
+  sudo: no

@@ -1,7 +1,9 @@
 ---
 
 - name: Edit the admin-openrc.sh
-  template: src=admin-openrc.sh.j2 dest=/home/vagrant/admin-openrc.sh
+  template: src=admin-openrc.sh.j2 dest=~/admin-openrc.sh
+  sudo: no
 
 - name: Edit the demo-openrc.sh
-  template: src=demo-openrc.sh.j2 dest=/home/vagrant/demo-openrc.sh
+  template: src=demo-openrc.sh.j2 dest=~/demo-openrc.sh
+  sudo: no
