@@ -8,6 +8,8 @@ block1_mgmt_ip: 10.0.0.41
 
 public_interface: p3p1
 
+db_host: controller
+
 virt_type: kvm
 time_zone: UTC
 

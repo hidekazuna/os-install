@@ -8,6 +8,8 @@ block1_mgmt_ip: 10.1.0.41
 
 public_interface: eth2
 
+db_host: controller
+
 virt_type: qemu
 time_zone: UTC
 
