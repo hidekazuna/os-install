@@ -52,9 +52,9 @@ METADATA_SECRET: secret
 
 public_interface: p3p1
 
-VIRT_TYPE: kvm
+virt_type: kvm
 
-TIME_ZONE: UTC
+time_zone: UTC
 
 CINDER_DBPASS: password
 CINDER_PASS: password

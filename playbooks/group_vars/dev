@@ -52,9 +52,9 @@ METADATA_SECRET: secret
 
 public_interface: eth2
 
-VIRT_TYPE: qemu
+virt_type: qemu
 
-TIME_ZONE: UTC
+time_zone: UTC
 
 CINDER_DBPASS: password
 CINDER_PASS: password
