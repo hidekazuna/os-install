@@ -1,11 +1,15 @@
 ---
 
-NTP_SERVER: ntp.jst.mfeed.ad.jp
+ntp_server: ntp.jst.mfeed.ad.jp
 
 controller_mgmt_ip: 10.0.0.11
 compute1_mgmt_ip: 10.0.0.31
-
 block1_mgmt_ip: 10.0.0.41
+
+public_interface: p3p1
+
+virt_type: kvm
+time_zone: UTC
 
 RABBIT_PASS: password
 KEYSTONE_DBPASS: password
@@ -49,12 +53,6 @@ NEUTRON_DBPASS: password
 NEUTRON_PASS: password
 
 METADATA_SECRET: secret
-
-PUBLIC_INTERFACE_NAME: p3p1
-
-VIRT_TYPE: kvm
-
-TIME_ZONE: UTC
 
 CINDER_DBPASS: password
 CINDER_PASS: password
