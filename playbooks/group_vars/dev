@@ -50,7 +50,7 @@ NEUTRON_PASS: password
 
 METADATA_SECRET: secret
 
-PUBLIC_INTERFACE_NAME: eth2
+public_interface: eth2
 
 VIRT_TYPE: qemu
 
