@@ -12,6 +12,7 @@ public_interface: p3p1
 api_host: controller
 rabbit_host: controller
 db_host: controller
+glance_host: controller
 
 virt_type: kvm
 time_zone: UTC

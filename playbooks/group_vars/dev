@@ -12,6 +12,7 @@ public_interface: eth2
 api_host: controller
 rabbit_host: controller
 db_host: controller
+glance_host: controller
 
 virt_type: qemu
 time_zone: UTC
