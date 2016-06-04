@@ -14,7 +14,7 @@ enabled_apis=ec2,osapi_compute,metadata
 rpc_backend = rabbit
 auth_strategy = keystone
 
-my_ip = {{ compute1_mgmt_ip }} 
+my_ip = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }} 
 
 network_api_class = nova.network.neutronv2.api.API
 security_group_api = neutron
@@ -25,16 +25,16 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 enabled = True
 vncserver_listen = 0.0.0.0
 vncserver_proxyclient_address = $my_ip
-novncproxy_base_url = http://controller:6080/vnc_auto.html
+novncproxy_base_url = http://{{ api_host }}:6080/vnc_auto.html
 
 [oslo_messaging_rabbit]
-rabbit_host = controller
+rabbit_host = {{ rabbit_host }}
 rabbit_userid = openstack
 rabbit_password = {{ RABBIT_PASS }}
 
 [keystone_authtoken]
-auth_uri = http://controller:5000
-auth_url = http://controller:35357
+auth_uri = http://{{ api_host }}:5000
+auth_url = http://{{ api_host }}:35357
 auth_plugin = password
 project_domain_id = default
 user_domain_id = default
@@ -43,14 +43,14 @@ username = nova
 password = {{ NOVA_PASS }}
 
 [glance]
-host = controller
+host = {{ glance_host }}
 
 [oslo_concurrency]
 lock_path = /var/lib/nova/tmp
 
 [neutron]
-url = http://controller:9696
-auth_url = http://controller:35357
+url = http://{{ api_host }}:9696
+auth_url = http://{{ api_host }}:35357
 auth_plugin = password
 project_domain_id = default
 user_domain_id = default

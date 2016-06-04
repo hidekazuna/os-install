@@ -361,7 +361,7 @@ backend = sqlalchemy
 # Deprecated group/name - [DEFAULT]/sql_connection
 # Deprecated group/name - [DATABASE]/sql_connection
 # Deprecated group/name - [sql]/connection
-connection = mysql+pymysql://glance:{{ GLANCE_DBPASS }}@controller/glance
+connection = mysql+pymysql://glance:{{ GLANCE_DBPASS }}@{{ db_host }}/glance
 
 # The SQLAlchemy connection string to use to connect to the slave
 # database. (string value)
@@ -931,8 +931,8 @@ connection = mysql+pymysql://glance:{{ GLANCE_DBPASS }}@controller/glance
 # Service tenant name. (string value)
 #admin_tenant_name = admin
 
-auth_uri = http://controller:5000
-auth_url = http://controller:35357
+auth_uri = http://{{ api_host }}:5000
+auth_url = http://{{ api_host }}:35357
 auth_plugin = password
 project_domain_id = default
 user_domain_id = default
