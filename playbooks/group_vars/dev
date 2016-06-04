@@ -8,6 +8,7 @@ block1_mgmt_ip: 10.1.0.41
 
 public_interface: eth2
 
+rabbit_host: controller
 db_host: controller
 
 virt_type: qemu
