@@ -33,6 +33,7 @@ rabbit_password = {{ RABBIT_PASS }}
 [keystone_authtoken]
 auth_uri = http://{{ api_host }}:5000
 auth_url = http://{{ api_host }}:35357
+memcached_servers = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:11211
 auth_type = password
 project_domain_name = default
 user_domain_name = default

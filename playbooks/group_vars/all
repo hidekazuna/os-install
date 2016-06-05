@@ -9,7 +9,7 @@ block1_mgmt_ip: 10.0.0.41
 
 mgmt_interface: p1p1
 overlay_interface: p1p1
-public_interface: p3p1
+provider_interface: p3p1
 
 api_host: controller
 rabbit_host: controller
