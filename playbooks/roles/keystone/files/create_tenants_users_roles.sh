@@ -1,4 +1,5 @@
 #!/bin/sh
+openstack domain create --description "Default Domain" default
 openstack project create --domain default --description "Admin Project" admin
 openstack user create --domain default --password $1 admin
 openstack role create admin
