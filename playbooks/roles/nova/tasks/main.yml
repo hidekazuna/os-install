@@ -6,17 +6,11 @@
     - nova_api
     - nova
 
-- name: Grant proper access to the nova_api databases
-  mysql_user: name=nova host={{ item }} password={{ NOVA_DBPASS }} priv=nova_api.*:ALL state=present
+- name: Grant proper access to the databases
+  mysql_user: name=nova host={{ item }} password={{ NOVA_DBPASS }} priv=nova.*:ALL/nova_api.*:ALL state=present
   with_items:
-    - localhost
-    - "%"
-
-- name: Grant proper access to the nova databases
-  mysql_user: name=nova host={{ item }} password={{ NOVA_DBPASS }} priv=nova.*:ALL state=present
-  with_items:
-    - localhost
-    - "%"
+    - 'localhost'
+    - '%'
 
 - name: create nova service entry and endpoint
   script: create_nova_service_entity_and_api_endpoint.sh {{ NOVA_PASS }} {{ api_host }}
