@@ -15,10 +15,7 @@
   sudo: no
 
 - name: install glance packages
-  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
-  with_items:
-    - glance
-    - python-glanceclient
+  apt: pkg=glance update_cache=yes cache_valid_time=3600
 
 - name: edit glance-api conf file
   template: src=glance-api.conf.j2 dest=/etc/glance/glance-api.conf
