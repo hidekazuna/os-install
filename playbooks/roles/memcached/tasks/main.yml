@@ -1,0 +1,14 @@
+---
+
+- name: install the packages
+  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
+  with_items:
+    - memcached
+    - python-memcache
+
+- name: edit memcached conf file
+  template: src=memcached.conf.j2 dest=/etc/memcached.conf
+
+- name: Restart the Memcached service
+  service: name=memcached state=restarted
+ 

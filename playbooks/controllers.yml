@@ -4,6 +4,7 @@
     - ntp_server
     - mariadb
     - rabbitmq
+    - memcached
     - keystone
     - glance
     - nova
