@@ -4,7 +4,6 @@
   apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
   with_items:
     - nova-compute
-    - sysfsutils
 
 - name: edit nova conf file
   template: src=nova.conf.j2 dest=/etc/nova/nova.conf
