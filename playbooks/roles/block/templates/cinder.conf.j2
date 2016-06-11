@@ -13,7 +13,7 @@ volumes_dir = /var/lib/cinder/volumes
 rpc_backend = rabbit
 my_ip = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }} 
 enabled_backends = lvm
-glance_host = {{ glance_host }}
+glance_api_servers = http://{{ api_host }}:9292
 
 [database]
 connection = mysql+pymysql://cinder:{{ CINDER_DBPASS }}@{{ db_host }}/cinder
@@ -26,9 +26,10 @@ rabbit_password = {{ RABBIT_PASS }}
 [keystone_authtoken]
 auth_uri = http://{{ api_host }}:5000
 auth_url = http://{{ api_host }}:35357
-auth_plugin = password
-project_domain_id = default
-user_domain_id = default
+memcached_servers = {{ api_host }}:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
 project_name = service
 username = cinder
 password = {{ CINDER_PASS }}

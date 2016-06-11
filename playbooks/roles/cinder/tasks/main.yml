@@ -19,7 +19,6 @@
   with_items:
     - cinder-api
     - cinder-scheduler
-    - python-cinderclient
 
 - name: edit cinder conf file
   template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf
@@ -35,6 +34,3 @@
   with_items:
     - cinder-scheduler
     - cinder-api
- 
-- name: remove the SQLite database file
-  file: path=/var/lib/cinder/cinder.sqlite state=absent
