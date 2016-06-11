@@ -23,7 +23,6 @@
     - heat-api
     - heat-api-cfn
     - heat-engine
-    - python-heatclient
 
 - name: edit heat conf file
   template: src=heat.conf.j2 dest=/etc/heat/heat.conf
@@ -37,6 +36,3 @@
     - heat-api
     - heat-api-cfn
     - heat-engine
-
-- name: remove the SQLite database file
-  file: path=/var/lib/heat/heat.sqlite state=absent
