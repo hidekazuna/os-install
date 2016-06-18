@@ -1,0 +1,20 @@
+---
+
+- name: install the MongoDB packages
+  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
+  with_items:
+    - mongodb-server
+    - mongodb-clients
+    - python-pymongo
+
+- name: edit the /etc/mongodb.conf file
+  template: src=mongodb.conf.j2 dest=/etc/mongodb.conf
+
+- name: stop MongoDB service
+  service: name=mongodb state=stopped
+
+- name: remove the initial journal files
+  file: path=/var/lib/mongodb/journal/prealloc.* state=absent
+
+- name: start MongoDB service
+  service: name=mongodb state=started
