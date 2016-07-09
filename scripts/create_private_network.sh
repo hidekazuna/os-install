@@ -12,7 +12,7 @@ neutron router-create router
 
 neutron router-interface-add router private
 
-neutron router-gateway-set router public
+neutron router-gateway-set router provider
 
 
 
