@@ -1,0 +1,34 @@
+---
+
+- name: Create the ceilometer database 
+  mongodb_user: login_host={{ db_host }} database=ceilometer name=ceilometer password={{ CEILOMETER_DBPASS }} roles='readWrite,dbAdmin' state=present
+
+- name: create ceilometer service entry and endpoint
+  script: create_ceilometer_service_entity_and_api_endpoint.sh {{ CEILOMETER_PASS }} {{ api_host }}
+  environment: admin_openrc
+  sudo: no
+
+- name: install ceilometer packages
+  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
+  with_items:
+    - ceilometer-api
+    - ceilometer-collector
+    - ceilometer-agent-central
+    - ceilometer-agent-notification
+    - python-ceilometerclient
+
+- name: edit ceilometer conf file
+  template: src=ceilometer.conf.j2 dest=/etc/ceilometer/ceilometer.conf
+
+- name: Restart the Telemetry services
+  service: name={{ item }} state=restarted
+  with_items:
+    - ceilometer-agent-central
+    - ceilometer-agent-notification
+    - ceilometer-api
+    - ceilometer-collector
+
+- include: configure_glance.yaml
+
+- include: configure_compute.yaml
+  delegate_to: groups.computes

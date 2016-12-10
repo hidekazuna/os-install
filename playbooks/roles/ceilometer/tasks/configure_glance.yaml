@@ -1,0 +1,17 @@
+- name: In the [DEFAULT] section, configure RabbitMQ message queue access 
+  ini_file: dest={{ item }} section=DEFAULT option=rpc_backend value=rabbit
+  with_items:
+    - /etc/glance/glance-api.conf
+    - /etc/glance/glance-registry.conf
+
+- name: In the [oslo_messaging_notifications] section, configure driver 
+  ini_file: dest={{ item }} section=oslo_messaging_notifications option=driver value=messagingv2
+  with_items:
+    - /etc/glance/glance-api.conf
+    - /etc/glance/glance-registry.conf
+
+- name: In the [oslo_messaging_rabbit] section, configure RabbitMQ message queue access
+  ini_file: dest={{ item.0 }} section=oslo_messaging_rabbit option={{ item.1.option }} value={{ item.1.value }}
+  with_nested:
+    - [ '/etc/glance/glance-api.conf', '/etc/glance/glance-registry.conf' ]
+    - [ { option: 'rabbit_host', value: "{{ rabbit_host }}" }, { option: 'rabbit_userid', value: 'openstack' }, { option: 'rabbit_password', value: "{{ RABBIT_PASS }}" } ]

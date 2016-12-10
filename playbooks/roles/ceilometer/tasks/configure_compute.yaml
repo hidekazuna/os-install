@@ -1,0 +1,29 @@
+---
+
+- name: install the packages
+  apt: pkg=ceilometer-agent-compute update_cache=yes cache_valid_time=3600
+  delegate_to: "{{ item }}"
+  with_items: groups.computes
+
+- name: In the [DEFAULT] section, configure RabbitMQ message queue access
+  ini_file: dest=/etc/ceilometer/ceilometer.conf section=DEFAULT option=rpc_backend value=rabbit
+  delegate_to: "{{ item }}"
+  with_items: groups.computes
+
+- name: In the [oslo_messaging_rabbit] section, configure RabbitMQ message queue access
+  ini_file: dest=/etc/ceilometer/ceilometer.conf section=oslo_messaging_rabbit option={{ item.option }} value={{ item.value }}
+  with_items:
+    - { option: 'rabbit_host', value: "{{ rabbit_host }}" }
+    - { option: 'rabbit_userid', value: 'openstack' }
+    - { option: 'rabbit_password', value: "{{ RABBIT_PASS }}" }
+  delegate_to: compute1
+
+- name: In the [DEFAULT] section, configure identity service access
+  ini_file: dest=/etc/ceilometer/ceilometer.conf section=DEFAULT option=auth_strategy value=keystone
+  delegate_to: "{{ item }}"
+  with_items: groups.computes
+
+
+
+
+
