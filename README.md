@@ -1,14 +1,10 @@
-Ansible playbooks for deploying OpenStack following http://docs.openstack.org/mitaka/install-guide-ubuntu/
+Ansible playbooks for deploying OpenStack following https://docs.openstack.org/install-guide/
+This is under development.
+
 
 ## limitations
 
 * Implement only Networking Option 2: Self-service networks
-
-* Shared File System service section is __NOT__ implemented.
-
-* Object Storage service section is __NOT__ implemented.
-
-* Database service section is __NOT__ implemented.
 
 ## License
 
