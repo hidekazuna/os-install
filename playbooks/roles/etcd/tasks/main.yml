@@ -29,25 +29,28 @@
 
 - name: get etcd
   get_url:
-    src: https://github.com/coreos/etcd/releases/download/{{ ETCD_VER }}/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
+    url: https://github.com/coreos/etcd/releases/download/{{ ETCD_VER }}/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
     dest: /tmp/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
 
 - name: unarchive etcd
-  file:
-    path: /tmp/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
+  unarchive:
+    src: /tmp/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
     dest: /tmp/etcd
+    remote_src: yes
 
 - name: copy etcd file
   copy:
-    path: /tmp/etcd/etcd
+    src: /tmp/etcd/etcd-{{ ETCD_VER }}-linux-amd64/etcd
     dest: /usr/bin/etcd
     remote_src: yes
+    mode: 0755
 
 - name: copy etcdctl file
   copy:
-    path: /tmp/etcd/etcdctl
+    src: /tmp/etcd/etcd-{{ ETCD_VER }}-linux-amd64/etcdctl
     dest: /usr/bin/etcdctl
     remote_src: yes
+    mode: 0755
 
 - name: create etcd.conf.yml
   template: src=etcd.conf.yml.j2 dest=/etc/etcd/etcd.conf.yml
@@ -57,5 +60,6 @@
 
 - name: enable and start etcd
   systemd:
-    enable: yes
+    name: etcd
+    enabled: yes
     state: started
