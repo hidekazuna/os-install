@@ -14,8 +14,10 @@
 - name: Restart the Compute service services
   service: name=nova-compute state=restarted
 
-- name: remove the SQLite database file
-  file: path=/var/lib/nova/nova.sqlite state=absent
+- name: add the compute node to the cell database
+  script: su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova
+  environment: admin_openrc
+  sudo: no
 
 #
 # Add a networking component
@@ -32,5 +34,8 @@
 - name: Configure the Linux bridge agent
   template: src=linuxbridge_agent.ini.j2 dest=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
 
-- name: Restart the Linux bridge agent
-  service: name=neutron-linuxbridge-agent state=restarted
+- name: Restart the compute service and linux bridge agent
+  service: name={{ items }} state=restarted
+  with_items:
+    - nova-compute
+    - neutron-linuxbridge-agent 
