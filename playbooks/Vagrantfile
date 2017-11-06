@@ -1,10 +1,15 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.ssh.insert_key = false
+  config.ssh.insert_key = true
+
+  # Install python for ansible
+  config.vm.provision "shell", inline: <<-SHELL
+    test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)
+  SHELL
 
   config.vm.define "controller" do |cont|
-    cont.vm.box = "ubuntu/trusty64"
+    cont.vm.box = "ubuntu/xenial64"
     cont.vm.hostname = "controller"
     cont.vm.network "private_network", ip: "10.1.0.11"
     cont.vm.network "private_network", ip: "10.3.0.11"
@@ -15,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.define "compute1" do |com1|
-    com1.vm.box = "ubuntu/trusty64"
+    com1.vm.box = "ubuntu/xenial64"
     com1.vm.hostname = "compute1"
     com1.vm.network "private_network", ip: "10.1.0.31"
     com1.vm.network "private_network", ip: "10.3.0.31"
@@ -26,7 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.define "block1" do |blk1|
-    blk1.vm.box = "ubuntu/trusty64"
+    blk1.vm.box = "ubuntu/xenial64"
     blk1.vm.hostname = "block1"
     blk1.vm.network "private_network", ip: "10.1.0.41"
     blk1.vm.provider "virtualbox" do |vb|
