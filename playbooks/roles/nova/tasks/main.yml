@@ -5,15 +5,21 @@
   with_items:
     - nova_api
     - nova
+    - nova_cell0
 
 - name: Grant proper access to the databases
-  mysql_user: name=nova host={{ item }} password={{ NOVA_DBPASS }} priv=nova.*:ALL/nova_api.*:ALL state=present
+  mysql_user: name=nova host={{ item }} password={{ NOVA_DBPASS }} priv=nova.*:ALL/nova_api.*:ALL/nova_cell0.*:ALL state=present
   with_items:
     - 'localhost'
     - '%'
 
-- name: create nova service entry and endpoint
+- name: create compute service entry and endpoint
   script: create_nova_service_entity_and_api_endpoint.sh {{ NOVA_PASS }} {{ api_host }}
+  environment: admin_openrc
+  sudo: no
+
+- name: create placement service entry and endpoint
+  script: create_placement_service_entity_and_api_endpoint.sh {{ PLACEMENT_PASS }} {{ api_host }}
   environment: admin_openrc
   sudo: no
 
@@ -25,11 +31,12 @@
     - nova-consoleauth
     - nova-novncproxy
     - nova-scheduler
+    - nova-placement-api
 
 - name: edit nova conf file
   template: src=nova.conf.j2 dest=/etc/nova/nova.conf
 
-- name: Populate the Compute database
+- name: Populate the Compute databases
   script: nova_db_sync.sh
 
 - name: Restart the Compute services
@@ -40,6 +47,3 @@
     - nova-scheduler
     - nova-conductor
     - nova-novncproxy
-
-- name: remove the SQLite database file
-  file: path=/var/lib/nova/nova.sqlite state=absent
