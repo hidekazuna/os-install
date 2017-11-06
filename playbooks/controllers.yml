@@ -5,6 +5,7 @@
     - mariadb
     - rabbitmq
     - memcached
+    - etcd
     - keystone
     - glance
     - nova
