@@ -1,0 +1,9 @@
+name: {{ api_host }}
+data-dir: /var/lib/etcd
+initial-cluster-state: 'new'
+initial-cluster-token: 'etcd-cluster-01'
+initial-cluster: controller=http://{{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:2380
+initial-advertise-peer-urls: http://{{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:2380
+advertise-client-urls: http://{{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:2379
+listen-peer-urls: http://0.0.0.0:2380
+listen-client-urls: http://{{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:2379
