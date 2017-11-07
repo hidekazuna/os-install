@@ -7,7 +7,7 @@
     - python-pymysql
 
 - name: create mariadb configuration file
-  template: src=mysqld_openstack.cnf dest=/etc/mysql/conf.d/mysqld_openstack.cnf
+  template: src=99-openstack.cnf dest=/etc/mysql/mariadb.conf.d/99-openstack.cnf
 
 - name: restart mariadb
   service: name=mysql state=restarted
