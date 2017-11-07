@@ -37,7 +37,7 @@
     --bootstrap-admin-url http://{{ api_host }}:35357/v3/ \
     --bootstrap-internal-url http://{{ api_host }}:35357/v3/ \
     --bootstrap-public-url http://{{ api_host }}:35357/v3/ \
-    --bootstrap-region_id RegionOne
+    --bootstrap-region-id RegionOne
 
 - name: edit apache conf file
   template: src=apache2.conf.j2 dest=/etc/apache2/apache2.conf
@@ -47,4 +47,4 @@
 
 - name: Create projects, users, and roles
   script: create_tenants_users_roles.sh {{ ADMIN_PASS }} {{ DEMO_PASS }}
-  environment: temp_auth_token
+  environment: "{{ admin_openrc }}"
