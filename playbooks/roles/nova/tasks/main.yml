@@ -15,12 +15,12 @@
 
 - name: create compute service entry and endpoint
   script: create_compute_service_entity_and_api_endpoint.sh {{ NOVA_PASS }} {{ api_host }}
-  environment: admin_openrc
+  environment: "{{ admin_openrc }}"
   sudo: no
 
 - name: create placement service entry and endpoint
   script: create_placement_service_entity_and_api_endpoint.sh {{ PLACEMENT_PASS }} {{ api_host }}
-  environment: admin_openrc
+  environment: "{{ admin_openrc }}"
   sudo: no
 
 - name: install nova packages
@@ -33,17 +33,18 @@
     - nova-scheduler
     - nova-placement-api
 
-  #- name: edit nova conf file
-  #template: src=nova.conf.j2 dest=/etc/nova/nova.conf
+- name: edit nova conf file
+  template: src=nova.conf.j2 dest=/etc/nova/nova.conf
 
-  #- name: Populate the Compute databases
-  #script: nova_db_sync.sh
+- name: Populate the Compute databases
+  script: nova_db_sync.sh
+  environment: "{{ admin_openrc }}"
 
-  #- name: Restart the Compute services
-  #service: name={{ item }} state=restarted
-  #with_items:
-  # - nova-api
-  # - nova-consoleauth
-  # - nova-scheduler
-  # - nova-conductor
-  # - nova-novncproxy
+- name: Restart the Compute services
+  service: name={{ item }} state=restarted
+  with_items:
+    - nova-api
+    - nova-consoleauth
+    - nova-scheduler
+    - nova-conductor
+    - nova-novncproxy
