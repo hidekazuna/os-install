@@ -1,5 +1,5 @@
 controller ansible_host=127.0.0.1 ansible_port=2222 ansible_ssh_private_key_file=.vagrant/machines/controller/virtualbox/private_key
-compute1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200
+compute1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200 ansible_ssh_private_key_file=.vagrant/machines/compute1/virtualbox/private_key
 block1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201
 
 [controller]
