@@ -18,8 +18,9 @@
 # Certificate Authority public key (CA cert) file for ssl (string value)
 #auth_ca_cert = <None>
 
-# IP address used by Nova metadata server. (string value)
-nova_metadata_ip = {{ api_host }}
+# IP address or DNS name of Nova metadata server. (unknown value)
+# Deprecated group/name - [DEFAULT]/nova_metadata_ip
+nova_metadata_host = {{ api_host }}
 
 # TCP Port used by Nova metadata server. (port value)
 # Minimum value: 0
@@ -64,8 +65,13 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 # (integer value)
 #metadata_backlog = 4096
 
-# URL to connect to the cache back end. (string value)
-#cache_url = memory://
+# DEPRECATED: URL to connect to the cache back end. This option is deprecated
+# in the Newton release and will be removed. Please add a [cache] group for
+# oslo.cache in your neutron.conf and add "enable" and "backend" options in
+# this section. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+#cache_url =
 
 #
 # From oslo.log
@@ -73,13 +79,8 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 
 # If set to true, the logging level will be set to DEBUG instead of the default
 # INFO level. (boolean value)
+# Note: This option can be changed without restarting.
 #debug = false
-
-# If set to false, the logging level will be set to WARNING instead of the
-# default INFO level. (boolean value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#verbose = true
 
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
@@ -87,6 +88,7 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 # configuration files are used then all logging configuration is set in the
 # configuration file and other logging configuration options are ignored (for
 # example, logging_context_format_string). (string value)
+# Note: This option can be changed without restarting.
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append = <None>
 
@@ -118,13 +120,19 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 # is set. (boolean value)
 #use_syslog = false
 
+# Enable journald for logging. If running in a systemd environment you may wish
+# to enable journal support. Doing so will use the journal native protocol
+# which includes structured metadata in addition to log messages.This option is
+# ignored if log_config_append is set. (boolean value)
+#use_journal = false
+
 # Syslog facility to receive log lines. This option is ignored if
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
 
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
-#use_stderr = true
+#use_stderr = false
 
 # Format string to use for log messages with context. (string value)
 #logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
@@ -146,7 +154,7 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 
 # List of package logging levels in logger=LEVEL pairs. This option is ignored
 # if log_config_append is set. (list value)
-#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN,oslo.cache=INFO,dogpile.core.dogpile=INFO
+#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,oslo_messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN,oslo.cache=INFO,dogpile.core.dogpile=INFO
 
 # Enables or disables publication of error events. (boolean value)
 #publish_errors = false
@@ -159,11 +167,23 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 # value)
 #instance_uuid_format = "[instance: %(uuid)s] "
 
+# Interval, number of seconds, of log rate limiting. (integer value)
+#rate_limit_interval = 0
+
+# Maximum number of logged messages per rate_limit_interval. (integer value)
+#rate_limit_burst = 0
+
+# Log level name used by rate limiting: CRITICAL, ERROR, INFO, WARNING, DEBUG
+# or empty string. Logs with level greater or equal to rate_limit_except_level
+# are not filtered. An empty string means that all levels are filtered. (string
+# value)
+#rate_limit_except_level = CRITICAL
+
 # Enables or disables fatal status of deprecations. (boolean value)
 #fatal_deprecations = false
 
 
-[AGENT]
+[agent]
 
 #
 # From neutron.metadata.agent
@@ -176,3 +196,73 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 
 # Log agent heartbeats (boolean value)
 #log_agent_heartbeats = false
+
+
+[cache]
+
+#
+# From oslo.cache
+#
+
+# Prefix for building the configuration dictionary for the cache region. This
+# should not need to be changed unless there is another dogpile.cache region
+# with the same configuration name. (string value)
+#config_prefix = cache.oslo
+
+# Default TTL, in seconds, for any cached item in the dogpile.cache region.
+# This applies to any cached method that doesn't have an explicit cache
+# expiration time defined for it. (integer value)
+#expiration_time = 600
+
+# Cache backend module. For eventlet-based or environments with hundreds of
+# threaded servers, Memcache with pooling (oslo_cache.memcache_pool) is
+# recommended. For environments with less than 100 threaded servers, Memcached
+# (dogpile.cache.memcached) or Redis (dogpile.cache.redis) is recommended. Test
+# environments with a single instance of the server can use the
+# dogpile.cache.memory backend. (string value)
+# Allowed values: oslo_cache.memcache_pool, oslo_cache.dict, dogpile.cache.memcached, dogpile.cache.redis, dogpile.cache.memory, dogpile.cache.null
+#backend = dogpile.cache.null
+
+# Arguments supplied to the backend module. Specify this option once per
+# argument to be passed to the dogpile.cache backend. Example format:
+# "<argname>:<value>". (multi valued)
+#backend_argument =
+
+# Proxy classes to import that will affect the way the dogpile.cache backend
+# functions. See the dogpile.cache documentation on changing-backend-behavior.
+# (list value)
+#proxies =
+
+# Global toggle for caching. (boolean value)
+#enabled = false
+
+# Extra debugging from the cache backend (cache keys, get/set/delete/etc
+# calls). This is only really useful if you need to see the specific cache-
+# backend get/set/delete calls with the keys/values.  Typically this should be
+# left set to false. (boolean value)
+#debug_cache_backend = false
+
+# Memcache servers in the format of "host:port". (dogpile.cache.memcache and
+# oslo_cache.memcache_pool backends only). (list value)
+#memcache_servers = localhost:11211
+
+# Number of seconds memcached server is considered dead before it is tried
+# again. (dogpile.cache.memcache and oslo_cache.memcache_pool backends only).
+# (integer value)
+#memcache_dead_retry = 300
+
+# Timeout in seconds for every call to a server. (dogpile.cache.memcache and
+# oslo_cache.memcache_pool backends only). (integer value)
+#memcache_socket_timeout = 3
+
+# Max total number of open connections to every memcached server.
+# (oslo_cache.memcache_pool backend only). (integer value)
+#memcache_pool_maxsize = 10
+
+# Number of seconds a connection to memcached is held unused in the pool before
+# it is closed. (oslo_cache.memcache_pool backend only). (integer value)
+#memcache_pool_unused_timeout = 60
+
+# Number of seconds that an operation will wait to get a memcache client
+# connection. (integer value)
+#memcache_pool_connection_get_timeout = 10
