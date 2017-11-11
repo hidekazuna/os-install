@@ -6,12 +6,20 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon.utils import secret_key
 
-from openstack_dashboard import exceptions
 from openstack_dashboard.settings import HORIZON_CONFIG
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
+# This setting controls whether or not compression is enabled. Disabling
+# compression makes Horizon considerably slower, but makes it much easier
+# to debug JS and CSS changes
+#COMPRESS_ENABLED = not DEBUG
+
+# This setting controls whether compression happens on the fly, or offline
+# with `python manage.py compress`
+# See https://django-compressor.readthedocs.io/en/latest/usage/#offline-compression
+# for more information
+#COMPRESS_OFFLINE = not DEBUG
 
 # WEBROOT is the location relative to Webserver root
 # should end with a slash.
@@ -34,7 +42,7 @@ WEBROOT = '/'
 # Pass this header from the proxy after terminating the SSL,
 # and don't forget to strip it from the client's request.
 # For more information see:
-# https://docs.djangoproject.com/en/1.8/ref/settings/#secure-proxy-ssl-header
+# https://docs.djangoproject.com/en/dev/ref/settings/#secure-proxy-ssl-header
 #SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # If Horizon is being served through SSL, then uncomment the following two
@@ -53,24 +61,39 @@ WEBROOT = '/'
 # NOTE: The version should be formatted as it appears in the URL for the
 # service API. For example, The identity service APIs have inconsistent
 # use of the decimal point, so valid options would be 2.0 or 3.
+# Minimum compute version to get the instance locked status is 2.9.
 OPENSTACK_API_VERSIONS = {
-#    "data-processing": 1.1,
     "identity": 3,
+    "image": 2,
     "volume": 2,
-    "compute": 2,
 }
 
-# Set this to True if running on multi-domain model. When this is enabled, it
-# will require user to enter the Domain name in addition to username for login.
+# Set this to True if running on a multi-domain model. When this is enabled, it
+# will require the user to enter the Domain name in addition to the username
+# for login.
 OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
+
+# Set this to True if you want available domains displayed as a dropdown menu
+# on the login screen. It is strongly advised NOT to enable this for public
+# clouds, as advertising enabled domains to unauthenticated customers
+# irresponsibly exposes private information. This should only be used for
+# private clouds where the dashboard sits behind a corporate firewall.
+#OPENSTACK_KEYSTONE_DOMAIN_DROPDOWN = False
+
+# If OPENSTACK_KEYSTONE_DOMAIN_DROPDOWN is enabled, this option can be used to
+# set the available domains to choose from. This is a list of pairs whose first
+# value is the domain name and the second is the display name.
+#OPENSTACK_KEYSTONE_DOMAIN_CHOICES = (
+#  ('Default', 'Default'),
+#)
 
 # Overrides the default domain used when running on single-domain model
 # with Keystone V3. All entities will be created in the default domain.
-# NOTE: This value must be the ID of the default domain, NOT the name.
+# NOTE: This value must be the name of the default domain, NOT the ID.
 # Also, you will most likely have a value in the keystone policy file like this
 #    "cloud_admin": "rule:admin_required and domain_id:<your domain id>"
-# This value must match the domain id specified there.
-OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'
+# This value must be the name of the domain whose ID is specified there.
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'Default'
 
 # Set this to True to enable panels that provide the ability for users to
 # manage Identity Providers (IdPs) and establish a set of rules to map
@@ -126,6 +149,7 @@ SECRET_KEY = secret_key.generate_or_read_from_file('/var/lib/openstack-dashboard
 # We recommend you use memcached for development; otherwise after every reload
 # of the django development server, you will have to login again. To use
 # memcached set CACHES to something like
+
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 CACHES = {
@@ -162,6 +186,13 @@ OPENSTACK_HOST = "{{ api_host }}"
 OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 
+# For setting the default service region on a per-endpoint basis. Note that the
+# default value for this setting is {}, and below is just an example of how it
+# should be specified.
+#DEFAULT_SERVICE_REGIONS = {
+#    OPENSTACK_KEYSTONE_URL: 'RegionOne'
+#}
+
 # Enables keystone web single-sign-on if set to True.
 #WEBSSO_ENABLED = False
 
@@ -196,6 +227,14 @@ OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 #    "acme_saml2": ("acme", "saml2"),
 #}
 
+# The Keystone Provider drop down uses Keystone to Keystone federation
+# to switch between Keystone service providers.
+# Set display name for Identity Provider (dropdown display name)
+#KEYSTONE_PROVIDER_IDP_NAME = "Local Keystone"
+# This id is used for only for comparison with the service provider IDs. This ID
+# should not match any service provider IDs.
+#KEYSTONE_PROVIDER_IDP_ID = "localkeystone"
+
 # Disable SSL certificate checks (useful for self-signed certificates):
 #OPENSTACK_SSL_NO_VERIFY = True
 
@@ -221,6 +260,11 @@ OPENSTACK_KEYSTONE_BACKEND = {
 # allowing Admin session password retrieval/decryption.
 #OPENSTACK_ENABLE_PASSWORD_RETRIEVE = False
 
+# This setting allows deployers to control whether a token is deleted on log
+# out. This can be helpful when there are often long running processes being
+# run in the Horizon environment.
+#TOKEN_DELETION_DISABLED = False
+
 # The Launch Instance user experience has been significantly enhanced.
 # You can choose whether to enable the new launch instance experience,
 # the legacy experience, or both. The legacy experience will be removed
@@ -239,6 +283,12 @@ OPENSTACK_KEYSTONE_BACKEND = {
 # properties found in the Launch Instance modal.
 #LAUNCH_INSTANCE_DEFAULTS = {
 #    'config_drive': False,
+#    'enable_scheduler_hints': True,
+#    'disable_image': False,
+#    'disable_instance_snapshot': False,
+#    'disable_volume': False,
+#    'disable_volume_snapshot': False,
+#    'create_volume': True,
 #}
 
 # The Xen Hypervisor has the ability to set the mount point for volumes
@@ -249,6 +299,7 @@ OPENSTACK_HYPERVISOR_FEATURES = {
     'can_set_mount_point': False,
     'can_set_password': False,
     'requires_keypair': False,
+    'enable_quotas': True
 }
 
 # The OPENSTACK_CINDER_FEATURES settings can be used to enable optional
@@ -263,43 +314,53 @@ OPENSTACK_CINDER_FEATURES = {
 OPENSTACK_NEUTRON_NETWORK = {
     'enable_router': True,
     'enable_quotas': True,
-    'enable_ipv6': False,
+    'enable_ipv6': True,
     'enable_distributed_router': False,
     'enable_ha_router': False,
-    'enable_lb': True,
-    'enable_firewall': True,
-    'enable_vpn': True,
     'enable_fip_topology_check': True,
 
-    # Neutron can be configured with a default Subnet Pool to be used for IPv4
-    # subnet-allocation. Specify the label you wish to display in the Address
-    # pool selector on the create subnet step if you want to use this feature.
-    'default_ipv4_subnet_pool_label': None,
-
-    # Neutron can be configured with a default Subnet Pool to be used for IPv6
-    # subnet-allocation. Specify the label you wish to display in the Address
-    # pool selector on the create subnet step if you want to use this feature.
-    # You must set this to enable IPv6 Prefix Delegation in a PD-capable
-    # environment.
-    'default_ipv6_subnet_pool_label': None,
-
-    # The profile_support option is used to detect if an external router can be
-    # configured via the dashboard. When using specific plugins the
-    # profile_support can be turned on if needed.
-    'profile_support': None,
-    #'profile_support': 'cisco',
+    # Default dns servers you would like to use when a subnet is
+    # created.  This is only a default, users can still choose a different
+    # list of dns servers when creating a new subnet.
+    # The entries below are examples only, and are not appropriate for
+    # real deployments
+    # 'default_dns_nameservers': ["8.8.8.8", "8.8.4.4", "208.67.222.222"],
 
     # Set which provider network types are supported. Only the network types
     # in this list will be available to choose from when creating a network.
-    # Network types include local, flat, vlan, gre, and vxlan.
-    'supported_provider_types': ['*'],
+    # Network types include local, flat, vlan, gre, vxlan and geneve.
+    # 'supported_provider_types': ['*'],
+
+    # You can configure available segmentation ID range per network type
+    # in your deployment.
+    # 'segmentation_id_range': {
+    #     'vlan': [1024, 2048],
+    #     'vxlan': [4094, 65536],
+    # },
+
+    # You can define additional provider network types here.
+    # 'extra_provider_types': {
+    #     'awesome_type': {
+    #         'display_name': 'Awesome New Type',
+    #         'require_physical_network': False,
+    #         'require_segmentation_id': True,
+    #     }
+    # },
 
     # Set which VNIC types are supported for port binding. Only the VNIC
     # types in this list will be available to choose from when creating a
     # port.
-    # VNIC types include 'normal', 'macvtap' and 'direct'.
+    # VNIC types include 'normal', 'direct', 'direct-physical', 'macvtap',
+    # 'baremetal' and 'virtio-forwarder'
     # Set to empty list or None to disable VNIC type selection.
     'supported_vnic_types': ['*'],
+
+    # Set list of available physical networks to be selected in the physical
+    # network field on the admin create network modal. If it's set to an empty
+    # list, the field will be a regular input field.
+    # e.g. ['default', 'test']
+    'physical_networks': [],
+
 }
 
 # The OPENSTACK_HEAT_STACK settings can be used to disable password
@@ -324,6 +385,7 @@ OPENSTACK_HEAT_STACK = {
 #        ('raw', _('Raw')),
 #        ('vdi', _('VDI - Virtual Disk Image')),
 #        ('vhd', _('VHD - Virtual Hard Disk')),
+#        ('vhdx', _('VHDX - Large Virtual Hard Disk')),
 #        ('vmdk', _('VMDK - Virtual Machine Disk')),
 #    ],
 #}
@@ -344,6 +406,22 @@ IMAGE_CUSTOM_PROPERTY_TITLES = {
 # table.
 IMAGE_RESERVED_CUSTOM_PROPERTIES = []
 
+# Set to 'legacy' or 'direct' to allow users to upload images to glance via
+# Horizon server. When enabled, a file form field will appear on the create
+# image form. If set to 'off', there will be no file form field on the create
+# image form. See documentation for deployment considerations.
+#HORIZON_IMAGES_UPLOAD_MODE = 'legacy'
+
+# Allow a location to be set when creating or updating Glance images.
+# If using Glance V2, this value should be False unless the Glance
+# configuration and policies allow setting locations.
+#IMAGES_ALLOW_LOCATION = False
+
+# A dictionary of default settings for create image modal.
+#CREATE_IMAGE_DEFAULTS = {
+#    'image_visibility': "public",
+#}
+
 # OPENSTACK_ENDPOINT_TYPE specifies the endpoint type to use for the endpoints
 # in the Keystone service catalog. Use this setting when Horizon is running
 # external to the OpenStack environment. The default is 'publicURL'.
@@ -352,9 +430,9 @@ IMAGE_RESERVED_CUSTOM_PROPERTIES = []
 # SECONDARY_ENDPOINT_TYPE specifies the fallback endpoint type to use in the
 # case that OPENSTACK_ENDPOINT_TYPE is not present in the endpoints
 # in the Keystone service catalog. Use this setting when Horizon is running
-# external to the OpenStack environment. The default is None.  This
+# external to the OpenStack environment. The default is None. This
 # value should differ from OPENSTACK_ENDPOINT_TYPE if used.
-#SECONDARY_ENDPOINT_TYPE = "publicURL"
+#SECONDARY_ENDPOINT_TYPE = None
 
 # The number of objects (Swift containers/objects or images) to display
 # on a single page before providing a paging element (a "more" link)
@@ -364,6 +442,9 @@ API_RESULT_PAGE_SIZE = 20
 
 # The size of chunk in bytes for downloading objects from Swift
 SWIFT_FILE_TRANSFER_CHUNK_SIZE = 512 * 1024
+
+# The default number of lines displayed for instance console log.
+INSTANCE_LOG_LENGTH = 35
 
 # Specify a maximum number of items to display in a dropdown.
 DROPDOWN_MAX_ITEMS = 30
@@ -422,7 +503,6 @@ TIME_ZONE = "{{ time_zone }}"
 #    'image': 'glance_policy.json',
 #    'orchestration': 'heat_policy.json',
 #    'network': 'neutron_policy.json',
-#    'telemetry': 'ceilometer_policy.json',
 #}
 
 # TODO: (david-lyle) remove when plugins support adding settings.
@@ -450,6 +530,20 @@ LOGGING = {
     # if nothing is specified here and disable_existing_loggers is True,
     # django.db.backends will still log unless it is disabled explicitly.
     'disable_existing_loggers': False,
+    # If apache2 mod_wsgi is used to deploy OpenStack dashboard
+    # timestamp is output by mod_wsgi. If WSGI framework you use does not
+    # output timestamp for logging, add %(asctime)s in the following
+    # format definitions.
+    'formatters': {
+        'console': {
+            'format': '%(levelname)s %(name)s %(message)s'
+        },
+        'operation': {
+            # The format of "%(message)s" is defined by
+            # OPERATION_LOG_OPTIONS['format']
+            'format': '%(message)s'
+        },
+    },
     'handlers': {
         'null': {
             'level': 'DEBUG',
@@ -459,6 +553,12 @@ LOGGING = {
             # Set the level to "DEBUG" for verbose output logging.
             'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+        'operation': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'operation',
         },
     },
     'loggers': {
@@ -475,6 +575,11 @@ LOGGING = {
         'horizon': {
             'handlers': ['console'],
             'level': 'DEBUG',
+            'propagate': False,
+        },
+        'horizon.operation_log': {
+            'handlers': ['operation'],
+            'level': 'INFO',
             'propagate': False,
         },
         'openstack_dashboard': {
@@ -508,11 +613,6 @@ LOGGING = {
             'propagate': False,
         },
         'heatclient': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-        'ceilometerclient': {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
@@ -686,12 +786,6 @@ SECURITY_GROUP_RULES = {
 # algorithms supported by Python's hashlib library.
 #OPENSTACK_TOKEN_HASH_ALGORITHM = 'md5'
 
-# Hashing tokens from Keystone keeps the Horizon session data smaller, but it
-# doesn't work in some cases when using PKI tokens.  Uncomment this value and
-# set it to False if using PKI tokens and there are 401 errors due to token
-# hashing.
-#OPENSTACK_TOKEN_HASH_ENABLED = True
-
 # AngularJS requires some settings to be made available to
 # the client side. Some settings are required by in-tree / built-in horizon
 # features. These settings must be added to REST_API_REQUIRED_SETTINGS in the
@@ -705,7 +799,10 @@ SECURITY_GROUP_RULES = {
 # You should not add settings to this list for out of tree extensions.
 # See: https://wiki.openstack.org/wiki/Horizon/RESTAPI
 REST_API_REQUIRED_SETTINGS = ['OPENSTACK_HYPERVISOR_FEATURES',
-                              'LAUNCH_INSTANCE_DEFAULTS']
+                              'LAUNCH_INSTANCE_DEFAULTS',
+                              'OPENSTACK_IMAGE_FORMATS',
+                              'OPENSTACK_KEYSTONE_DEFAULT_DOMAIN',
+                              'CREATE_IMAGE_DEFAULTS']
 
 # Additional settings can be made available to the client side for
 # extensibility by specifying them in REST_API_ADDITIONAL_SETTINGS
@@ -718,11 +815,8 @@ REST_API_REQUIRED_SETTINGS = ['OPENSTACK_HYPERVISOR_FEATURES',
 # Ubuntu Settings
 ###############################################################################
 
-# Enable the Ubuntu theme if it is present.
-try:
-  from ubuntu_theme import *
-except ImportError:
-  pass
+ # The default theme if no cookie is present
+DEFAULT_THEME = 'ubuntu'
 
 # Default Ubuntu apache configuration uses /horizon as the application root.
 WEBROOT='/horizon/'
@@ -730,7 +824,7 @@ WEBROOT='/horizon/'
 # By default, validation of the HTTP Host header is disabled.  Production
 # installations should have this set accordingly.  For more information
 # see https://docs.djangoproject.com/en/dev/ref/settings/.
-ALLOWED_HOSTS = ['*', ]
+ALLOWED_HOSTS = '*'
 
 # Compress all assets offline as part of packaging installation
 COMPRESS_OFFLINE = True
@@ -742,3 +836,79 @@ COMPRESS_OFFLINE = True
 # For more information see:
 # http://tinyurl.com/anticlickjack
 #DISALLOW_IFRAME_EMBED = True
+
+# Help URL can be made available for the client. To provide a help URL, edit the
+# following attribute to the URL of your choice.
+#HORIZON_CONFIG["help_url"] = "http://openstack.mycompany.org"
+
+# Settings for OperationLogMiddleware
+# OPERATION_LOG_ENABLED is flag to use the function to log an operation on
+# Horizon.
+# mask_targets is arrangement for appointing a target to mask.
+# method_targets is arrangement of HTTP method to output log.
+# format is the log contents.
+#OPERATION_LOG_ENABLED = False
+#OPERATION_LOG_OPTIONS = {
+#    'mask_fields': ['password'],
+#    'target_methods': ['POST'],
+#    'ignored_urls': ['/js/', '/static/', '^/api/'],
+#    'format': ("[%(client_ip)s] [%(domain_name)s]"
+#        " [%(domain_id)s] [%(project_name)s]"
+#        " [%(project_id)s] [%(user_name)s] [%(user_id)s] [%(request_scheme)s]"
+#        " [%(referer_url)s] [%(request_url)s] [%(message)s] [%(method)s]"
+#        " [%(http_status)s] [%(param)s]"),
+#}
+
+# The default date range in the Overview panel meters - either <today> minus N
+# days (if the value is integer N), or from the beginning of the current month
+# until today (if set to None). This setting should be used to limit the amount
+# of data fetched by default when rendering the Overview panel.
+#OVERVIEW_DAYS_RANGE = 1
+
+# To allow operators to require users provide a search criteria first
+# before loading any data into the views, set the following dict
+# attributes to True in each one of the panels you want to enable this feature.
+# Follow the convention <dashboard>.<view>
+#FILTER_DATA_FIRST = {
+#    'admin.instances': False,
+#    'admin.images': False,
+#    'admin.networks': False,
+#    'admin.routers': False,
+#    'admin.volumes': False,
+#    'identity.users': False,
+#    'identity.projects': False,
+#    'identity.groups': False,
+#    'identity.roles': False
+#}
+
+# Dict used to restrict user private subnet cidr range.
+# An empty list means that user input will not be restricted
+# for a corresponding IP version. By default, there is
+# no restriction for IPv4 or IPv6. To restrict
+# user private subnet cidr range set ALLOWED_PRIVATE_SUBNET_CIDR
+# to something like
+#ALLOWED_PRIVATE_SUBNET_CIDR = {
+#    'ipv4': ['10.0.0.0/8', '192.168.0.0/16'],
+#    'ipv6': ['fc00::/7']
+#}
+ALLOWED_PRIVATE_SUBNET_CIDR = {'ipv4': [], 'ipv6': []}
+
+# Projects and users can have extra attributes as defined by keystone v3.
+# Horizon has the ability to display these extra attributes via this setting.
+# If you'd like to display extra data in the project or user tables, set the
+# corresponding dict key to the attribute name, followed by the display name.
+# For more information, see horizon's customization (http://docs.openstack.org/developer/horizon/topics/customizing.html#horizon-customization-module-overrides)
+#PROJECT_TABLE_EXTRA_INFO = {
+#   'phone_num': _('Phone Number'),
+#}
+#USER_TABLE_EXTRA_INFO = {
+#   'phone_num': _('Phone Number'),
+#}
+
+# Password will have an expiration date when using keystone v3 and enabling the
+# feature.
+# This setting allows you to set the number of days that the user will be alerted
+# prior to the password expiration.
+# Once the password expires keystone will deny the access and users must
+# contact an admin to change their password.
+#PASSWORD_EXPIRES_WARNING_THRESHOLD_DAYS = 0
