@@ -5,7 +5,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Install python for ansible
   config.vm.provision "shell", inline: <<-SHELL
-    test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)
+    test -e /usr/bin/python || (sudo ln -s /usr/bin/python3 /usr/bin/python)
   SHELL
 
   config.vm.define "controller" do |cont|
