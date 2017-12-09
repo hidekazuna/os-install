@@ -6,12 +6,12 @@
 - name: create cinder user
   mysql_user: name=cinder host={{ item }} password={{ CINDER_DBPASS }} priv=cinder.*:ALL state=present
   with_items:
-    - localhost
+    - 'localhost'
     - "%"
 
 - name: create cinder service entry and endpoint
   script: create_cinder_service_entity_and_api_endpoint.sh {{ CINDER_PASS }} {{ api_host }}
-  environment: admin_openrc
+  environment: "{{ admin_openrc }}"
   sudo: no
 
 - name: install cinder packages
@@ -26,11 +26,11 @@
 - name: Populate the Compute database
   script: cinder_db_sync.sh
 
-- name: Restart the Compute API service
+- name: Restart the Compute API se^rvice
   service: name=nova-api state=restarted
  
 - name: Restart the Block Storage services
   service: name={{ item }} state=restarted
   with_items:
     - cinder-scheduler
-    - cinder-api
+    - apache2

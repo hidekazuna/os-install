@@ -5,7 +5,6 @@
   apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
   with_items:
     - cinder-volume
-    - python-mysqldb
 
 - name: edit cinder conf file
   template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf
@@ -15,6 +14,3 @@
   with_items:
     - tgt
     - cinder-volume
-
-- name: remove the SQLite database file
-  file: path=/var/lib/cinder/cinder.sqlite state=absent

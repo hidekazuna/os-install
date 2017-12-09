@@ -8,18 +8,13 @@ verbose = True
 auth_strategy = keystone
 state_path = /var/lib/cinder
 lock_path = /var/lock/cinder
-volumes_dir = /var/lib/cinder/volume
-
-rpc_backend = rabbit
+volumes_dir = /var/lib/cinder/volumes
+enabled_backends = lvm
+transport_url = rabbit://openstack:{{ RABBIT_PASS }}@{{ api_host }}
 my_ip = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}
 
 [database]
 connection = mysql+pymysql://cinder:{{ CINDER_DBPASS }}@{{ db_host }}/cinder
-
-[oslo_messaging_rabbit]
-rabbit_host = {{ rabbit_host }}
-rabbit_userid = openstack
-rabbit_password = {{ RABBIT_PASS }}
 
 [keystone_authtoken]
 auth_uri = http://{{ api_host }}:5000
@@ -34,7 +29,5 @@ password = {{ CINDER_PASS }}
 
 [oslo_concurrency]
 lock_path = /var/lib/cinder/tmp
-
-
 
 
