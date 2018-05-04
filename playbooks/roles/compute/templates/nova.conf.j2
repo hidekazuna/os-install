@@ -8218,7 +8218,6 @@ lock_path = /var/lib/nova/tmp
 
 
 [placement]
-os_region_name = openstack
 
 #
 # From nova.conf
@@ -8320,10 +8319,10 @@ os_region_name = openstack
 #tenant_name = <None>
 
 os_region_name = RegionOne
-project_domain_name = default
+project_domain_name = Default
 project_name = service
 auth_type = password
-user_domain_name = default
+user_domain_name = Default
 auth_url = http://{{ api_host }}:35357/v3
 username = placement
 password = {{ PLACEMENT_PASS }}
@@ -9842,7 +9841,7 @@ enabled = true
 # The IP address or hostname on which an instance should listen to for
 # incoming VNC connection requests on this node.
 #  (unknown value)
-vncserver_listen = 0.0.0.0
+server_listen = 0.0.0.0
 
 #
 # Private, internal IP address or hostname of VNC console proxy.
@@ -9853,7 +9852,7 @@ vncserver_listen = 0.0.0.0
 # This option sets the private address to which proxy clients, such as
 # ``nova-xvpvncproxy``, should connect to.
 #  (unknown value)
-vncserver_proxyclient_address = $my_ip
+server_proxyclient_address = $my_ip
 
 #
 # Public address of noVNC VNC console proxy.
