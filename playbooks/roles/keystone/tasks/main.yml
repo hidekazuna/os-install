@@ -34,9 +34,9 @@
 - name: bootstrap the identity service
   command: |
     keystone-manage bootstrap --bootstrap-password {{ ADMIN_PASS }} \
-    --bootstrap-admin-url http://{{ api_host }}:35357/v3/ \
-    --bootstrap-internal-url http://{{ api_host }}:35357/v3/ \
-    --bootstrap-public-url http://{{ api_host }}:35357/v3/ \
+    --bootstrap-admin-url http://{{ api_host }}:5000/v3/ \
+    --bootstrap-internal-url http://{{ api_host }}:5000/v3/ \
+    --bootstrap-public-url http://{{ api_host }}:5000/v3/ \
     --bootstrap-region-id RegionOne
 
 - name: edit apache conf file
