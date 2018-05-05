@@ -6213,7 +6213,7 @@ api_servers = http://{{ api_host }}:9292
 #auth_section = <None>
 
 auth_uri = http://{{ api_host }}:5000
-auth_url = http://{{ api_host }}:35357
+auth_url = http://{{ api_host }}:5000
 memcached_servers = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:11211
 auth_type = password
 project_domain_name = default
@@ -7611,7 +7611,7 @@ password = {{ NOVA_PASS }}
 #endpoint_override = <None>
 
 url = http://{{ api_host }}:9696
-auth_url = http://{{ api_host }}:35357
+auth_url = http://{{ api_host }}:5000
 auth_type = password
 project_domain_name = default
 user_domain_name = default
@@ -8801,7 +8801,7 @@ project_domain_name = Default
 project_name = service
 auth_type = password
 user_domain_name = Default
-auth_url = http://{{ api_host }}:35357/v3
+auth_url = http://{{ api_host }}:5000/v3
 username = placement
 password = {{ PLACEMENT_PASS }}
 
