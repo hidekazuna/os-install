@@ -151,7 +151,7 @@
 #  (integer value)
 #image_location_quota = 10
 
-#
+# DEPRECATED:
 # Python module path of data access API.
 #
 # Specifies the path to the API to use for accessing the data model.
@@ -184,6 +184,14 @@
 #     * enable_v2_registry
 #
 #  (string value)
+# This option is deprecated for removal since Queens.
+# Its value may be silently ignored in the future.
+# Reason:
+# Glance registry service is deprecated for removal.
+#
+# More information can be found from the spec:
+# http://specs.openstack.org/openstack/glance-specs/specs/queens/approved/glance
+# /deprecate-registry.html
 #data_api = glance.db.sqlalchemy.api
 
 #
@@ -442,7 +450,7 @@
 #  (boolean value)
 #enable_v1_registry = true
 
-#
+# DEPRECATED:
 # Deploy the v2 API Registry service.
 #
 # When this option is set to ``True``, the Registry service
@@ -466,6 +474,14 @@
 #     * data_api
 #
 #  (boolean value)
+# This option is deprecated for removal since Queens.
+# Its value may be silently ignored in the future.
+# Reason:
+# Glance registry service is deprecated for removal.
+#
+# More information can be found from the spec:
+# http://specs.openstack.org/openstack/glance-specs/specs/queens/approved/glance
+# /deprecate-registry.html
 #enable_v2_registry = true
 
 #
@@ -583,11 +599,11 @@
 # default in Queens and removed in Rocky. This allows Glance to
 # operate with previous version configs upon upgrade.
 #
-# Setting this option to True will enable the endpoints related
+# Setting this option to False will disable the endpoints related
 # to Image Import Refactoring work.
 #
 # Related options:
-#     * [DEFUALT]/node_staging_uri (boolean value)
+#     * [DEFAULT]/node_staging_uri (boolean value)
 # This option is deprecated for removal since Pike.
 # Its value may be silently ignored in the future.
 # Reason:
@@ -596,7 +612,17 @@
 # It was introduced to make sure that the API is not enabled
 # before the '[DEFAULT]/node_staging_uri' is defined and is
 # long term redundant.
-#enable_image_import = false
+#enable_image_import = true
+
+#
+# List of enabled Image Import Methods
+#
+# Both 'glance-direct' and 'web-download' are enabled by default.
+#
+# Related options:
+#     * [DEFAULT]/node_staging_uri
+#     * [DEFAULT]/enable_image_import (list value)
+#enabled_import_methods = glance-direct,web-download
 
 #
 # IP address to bind the glance servers to.
@@ -749,7 +775,10 @@
 #
 # Provide a non-negative integer value to set the number of child
 # process workers to service requests. By default, the number of CPUs
-# available is set as the value for ``workers``.
+# available is set as the value for ``workers`` limited to 8. For
+# example if the processor count is 6, 6 workers will be used, if the
+# processor count is 24 only 8 workers will be used. The limit will only
+# apply to the default value, if 24 workers is configured, 24 is used.
 #
 # Each worker process is made to listen on the port set in the
 # configuration file and contains a greenthread pool of size 1000.
@@ -894,6 +923,10 @@
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
 
+# Use JSON formatting for logging. This option is ignored if log_config_append
+# is set. (boolean value)
+#use_json = false
+
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
 #use_stderr = false
@@ -963,7 +996,10 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, sentinel, dummy
+# Possible values:
+# redis - <No description provided>
+# sentinel - <No description provided>
+# dummy - <No description provided>
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
@@ -1032,7 +1068,9 @@
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -1104,7 +1142,16 @@
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
 
-# A URL representing the messaging driver to use and its full configuration.
+# The network address and optional user credentials for connecting to the
+# messaging backend, in URL format. The expected format is:
+#
+# driver://[user:pass@]host:port[,[userN:passN@]hostN:portN]/virtual_host?query
+#
+# Example: rabbit://rabbitmq:password@127.0.0.1:5672//
+#
+# For full details on the fields in the URL see the documentation of
+# oslo_messaging.TransportURL at
+# https://docs.openstack.org/oslo.messaging/latest/reference/transport.html
 # (string value)
 #transport_url = <None>
 
@@ -1154,11 +1201,15 @@ connection = mysql+pymysql://glance:{{ GLANCE_DBPASS }}@{{ db_host }}/glance
 # (boolean value)
 #mysql_enable_ndb = false
 
-# Timeout before idle SQL connections are reaped. (integer value)
+# Connections which have been present in the connection pool longer than this
+# number of seconds will be replaced with a new one the next time they are
+# checked out from the pool. (integer value)
+# Deprecated group/name - [DATABASE]/idle_timeout
+# Deprecated group/name - [database]/idle_timeout
 # Deprecated group/name - [DEFAULT]/sql_idle_timeout
 # Deprecated group/name - [DATABASE]/sql_idle_timeout
 # Deprecated group/name - [sql]/idle_timeout
-#idle_timeout = 3600
+#connection_recycle_time = 3600
 
 # Minimum number of SQL connections to keep open in a pool. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_min_pool_size
@@ -1244,6 +1295,22 @@ connection = mysql+pymysql://glance:{{ GLANCE_DBPASS }}@{{ db_host }}/glance
 # you're using a versioned v2 endpoint here, then this should *not* be the same
 # endpoint the service user utilizes for validating tokens, because normal end
 # users may not be able to reach that endpoint. (string value)
+# Deprecated group/name - [keystone_authtoken]/auth_uri
+#www_authenticate_uri = <None>
+
+# DEPRECATED: Complete "public" Identity API endpoint. This endpoint should not
+# be an "admin" endpoint, as it should be accessible by all end users.
+# Unauthenticated clients are redirected to this endpoint to authenticate.
+# Although this endpoint should ideally be unversioned, client support in the
+# wild varies. If you're using a versioned v2 endpoint here, then this should
+# *not* be the same endpoint the service user utilizes for validating tokens,
+# because normal end users may not be able to reach that endpoint. This option
+# is deprecated in favor of www_authenticate_uri and will be removed in the S
+# release. (string value)
+# This option is deprecated for removal since Queens.
+# Its value may be silently ignored in the future.
+# Reason: The auth_uri option is deprecated in favor of www_authenticate_uri and
+# will be removed in the S  release.
 #auth_uri = <None>
 
 # API version of the admin Identity API endpoint. (string value)
@@ -1316,7 +1383,10 @@ connection = mysql+pymysql://glance:{{ GLANCE_DBPASS }}@{{ db_host }}/glance
 # in the cache. If ENCRYPT, token data is encrypted and authenticated in the
 # cache. If the value is not one of these options or empty, auth_token will
 # raise an exception on initialization. (string value)
-# Allowed values: None, MAC, ENCRYPT
+# Possible values:
+# None - <No description provided>
+# MAC - <No description provided>
+# ENCRYPT - <No description provided>
 #memcache_security_strategy = None
 
 # (Optional, mandatory if memcache_security_strategy is defined) This string is
@@ -1404,11 +1474,11 @@ connection = mysql+pymysql://glance:{{ GLANCE_DBPASS }}@{{ db_host }}/glance
 #auth_section = <None>
 
 auth_uri = http://{{ api_host }}:5000
-auth_url = http://{{ api_host }}:35357
+auth_url = http://{{ api_host }}:5000
 memcached_servers = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:11211
 auth_type = password
-project_domain_name = default
-user_domain_name = default
+project_domain_name = Default
+user_domain_name = Default
 project_name = service
 username = glance
 password = {{ GLANCE_PASS }}
@@ -1493,6 +1563,14 @@ password = {{ GLANCE_PASS }}
 # Password for decrypting ssl_key_file (if encrypted) (string value)
 #ssl_key_password = <None>
 
+# By default SSL checks that the name in the server's certificate matches the
+# hostname in the transport_url. In some configurations it may be preferable to
+# use the virtual hostname instead, for example if the server uses the Server
+# Name Indication TLS extension (rfc6066) to provide a certificate per virtual
+# host. Set ssl_verify_vhost to True if the server's SSL certificate uses the
+# virtual host name instead of the DNS name. (boolean value)
+#ssl_verify_vhost = false
+
 # DEPRECATED: Accept clients using either SSL or plain TCP (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -1573,6 +1651,14 @@ password = {{ GLANCE_PASS }}
 # 'dynamic'  - use legacy addresses if the message bus does not support routing
 # otherwise use routable addressing (string value)
 #addressing_mode = dynamic
+
+# Enable virtual host support for those message buses that do not natively
+# support virtual hosting (such as qpidd). When set to true the virtual host
+# name will be added to all message bus addresses, effectively creating a
+# private 'subnet' per virtual host. Set to False if the message bus supports
+# virtual hosting using the 'hostname' field in the AMQP 1.0 Open performative
+# as the name of the virtual host. (boolean value)
+#pseudo_vhost = true
 
 # address prefix used when sending to a specific server (string value)
 #server_request_prefix = exclusive
@@ -1671,13 +1757,24 @@ password = {{ GLANCE_PASS }}
 # Default timeout(s) for Kafka consumers (floating point value)
 #kafka_consumer_timeout = 1.0
 
-# Pool Size for Kafka Consumers (integer value)
+# DEPRECATED: Pool Size for Kafka Consumers (integer value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #pool_size = 10
 
-# The pool size limit for connections expiration policy (integer value)
+# DEPRECATED: The pool size limit for connections expiration policy (integer
+# value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #conn_pool_min_size = 2
 
-# The time-to-live in sec of idle connections in the pool (integer value)
+# DEPRECATED: The time-to-live in sec of idle connections in the pool (integer
+# value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #conn_pool_ttl = 1200
 
 # Group id for Kafka consumer. Consumers in one group will coordinate message
@@ -1770,7 +1867,9 @@ password = {{ GLANCE_PASS }}
 # Determines how the next RabbitMQ node is chosen in case the one we are
 # currently connected to becomes unavailable. Takes effect only if more than one
 # RabbitMQ node is provided in config. (string value)
-# Allowed values: round-robin, shuffle
+# Possible values:
+# round-robin - <No description provided>
+# shuffle - <No description provided>
 #kombu_failover_strategy = round-robin
 
 # DEPRECATED: The RabbitMQ broker address where a single node is used. (string
@@ -1807,7 +1906,10 @@ password = {{ GLANCE_PASS }}
 #rabbit_password = guest
 
 # The RabbitMQ login method. (string value)
-# Allowed values: PLAIN, AMQPLAIN, RABBIT-CR-DEMO
+# Possible values:
+# PLAIN - <No description provided>
+# AMQPLAIN - <No description provided>
+# RABBIT-CR-DEMO - <No description provided>
 #rabbit_login_method = AMQPLAIN
 
 # DEPRECATED: The RabbitMQ virtual host. (string value)
@@ -1886,7 +1988,10 @@ password = {{ GLANCE_PASS }}
 #host_connection_reconnect_delay = 0.25
 
 # Connection factory implementation (string value)
-# Allowed values: new, single, read_write
+# Possible values:
+# new - <No description provided>
+# single - <No description provided>
+# read_write - <No description provided>
 #connection_factory = single
 
 # Maximum number of connections to keep queued. (integer value)
@@ -1910,7 +2015,9 @@ password = {{ GLANCE_PASS }}
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #default_serializer_type = json
 
 # Persist notification messages. (boolean value)
@@ -1977,7 +2084,10 @@ password = {{ GLANCE_PASS }}
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, sentinel, dummy
+# Possible values:
+# redis - <No description provided>
+# sentinel - <No description provided>
+# dummy - <No description provided>
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
@@ -2046,7 +2156,9 @@ password = {{ GLANCE_PASS }}
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -2117,6 +2229,14 @@ password = {{ GLANCE_PASS }}
 # From oslo.policy
 #
 
+# This option controls whether or not to enforce scope when evaluating policies.
+# If ``True``, the scope of the token used in the request is compared to the
+# ``scope_types`` of the policy being enforced. If the scopes do not match, an
+# ``InvalidScope`` exception will be raised. If ``False``, a message will be
+# logged informing operators that policies are being invoked with mismatching
+# scope. (boolean value)
+#enforce_scope = false
+
 # The file that defines policies. (string value)
 #policy_file = policy.json
 
@@ -2129,6 +2249,25 @@ password = {{ GLANCE_PASS }}
 # directories to be searched.  Missing or empty directories are ignored. (multi
 # valued)
 #policy_dirs = policy.d
+
+# Content Type to send and receive data for REST based policy check (string
+# value)
+# Possible values:
+# application/x-www-form-urlencoded - <No description provided>
+# application/json - <No description provided>
+#remote_content_type = application/x-www-form-urlencoded
+
+# server identity verification for REST based policy check (boolean value)
+#remote_ssl_verify_server_crt = false
+
+# Absolute path to ca cert file for REST based policy check (string value)
+#remote_ssl_ca_crt_file = <None>
+
+# Absolute path to client cert for REST based policy check (string value)
+#remote_ssl_client_crt_file = <None>
+
+# Absolute path client key file REST based policy check (string value)
+#remote_ssl_client_key_file = <None>
 
 
 [paste_deploy]
