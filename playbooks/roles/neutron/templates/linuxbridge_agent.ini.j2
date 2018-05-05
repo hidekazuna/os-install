@@ -57,6 +57,10 @@
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
 
+# Use JSON formatting for logging. This option is ignored if log_config_append
+# is set. (boolean value)
+#use_json = false
+
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
 #use_stderr = false
@@ -124,6 +128,17 @@
 # value is set to 0, rpc timeout won't be changed (integer value)
 #quitting_rpc_timeout = 10
 
+# The DSCP value to use for outer headers during tunnel encapsulation. (integer
+# value)
+# Minimum value: 0
+# Maximum value: 63
+#dscp = <None>
+
+# If set to True, the DSCP value of tunnel interfaces is overwritten and set to
+# inherit. The DSCP value of the inner header is then copied to the outer
+# header. (boolean value)
+#dscp_inherit = false
+
 # Extensions list to use (list value)
 #extensions =
 
@@ -141,8 +156,27 @@
 # appropriate interfaces on each agent. (list value)
 physical_interface_mappings = provider:{{ provider_interface }}
 
+
 # List of <physical_network>:<physical_bridge> (list value)
 #bridge_mappings =
+
+
+[network_log]
+
+#
+# From neutron.ml2.linuxbridge.agent
+#
+
+# Maximum packets logging per second. (integer value)
+# Minimum value: 100
+#rate_limit = 100
+
+# Maximum number of packets per rate_limit. (integer value)
+# Minimum value: 25
+#burst_limit = 25
+
+# Output logfile path on agent side, default syslog file. (string value)
+#local_output_log_base = <None>
 
 
 [securitygroup]
@@ -153,6 +187,7 @@ physical_interface_mappings = provider:{{ provider_interface }}
 
 # Driver for security groups firewall in the L2 agent (string value)
 firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+
 
 # Controls whether the neutron security group API is enabled in the server. It
 # should be false when using no security groups or using the nova security
@@ -177,7 +212,12 @@ enable_vxlan = true
 # TTL for vxlan interface protocol packets. (integer value)
 #ttl = <None>
 
-# TOS for vxlan interface protocol packets. (integer value)
+# DEPRECATED: TOS for vxlan interface protocol packets. This option is
+# deprecated in favor of the dscp option in the AGENT section and will be
+# removed in a future release. To convert the TOS value to DSCP, divide by 4.
+# (integer value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #tos = <None>
 
 # Multicast group(s) for vxlan interface. A range of group addresses may be
@@ -194,6 +234,7 @@ enable_vxlan = true
 # in the ML2 plug-in configuration file on the neutron server node(s). (IP
 # address value)
 local_ip = {{ hostvars[inventory_hostname]['ansible_' + overlay_interface]['ipv4']['address'] }}
+
 
 # The minimum of the UDP source port range used for VXLAN communication. (port
 # value)

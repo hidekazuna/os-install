@@ -57,6 +57,10 @@
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
 
+# Use JSON formatting for logging. This option is ignored if log_config_append
+# is set. (boolean value)
+#use_json = false
+
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
 #use_stderr = false
@@ -108,6 +112,17 @@
 
 # Enables or disables fatal status of deprecations. (boolean value)
 #fatal_deprecations = false
+
+
+[l2pop]
+
+#
+# From neutron.ml2
+#
+
+# Delay within which agent is expected to update existing ports when it
+# restarts (integer value)
+#agent_boot_time = 180
 
 
 [ml2]

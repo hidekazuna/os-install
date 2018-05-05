@@ -19,7 +19,6 @@
 #auth_ca_cert = <None>
 
 # IP address or DNS name of Nova metadata server. (unknown value)
-# Deprecated group/name - [DEFAULT]/nova_metadata_ip
 nova_metadata_host = {{ api_host }}
 
 # TCP Port used by Nova metadata server. (port value)
@@ -35,7 +34,9 @@ nova_metadata_host = {{ api_host }}
 metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 
 # Protocol to access nova metadata, http or https (string value)
-# Allowed values: http, https
+# Possible values:
+# http - <No description provided>
+# https - <No description provided>
 #nova_metadata_protocol = http
 
 # Allow to perform insecure SSL (https) requests to nova metadata (boolean
@@ -54,24 +55,20 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 # root, 'group': set metadata proxy socket mode to 0o664, to use when
 # metadata_proxy_group is agent effective group or root, 'all': set metadata
 # proxy socket mode to 0o666, to use otherwise. (string value)
-# Allowed values: deduce, user, group, all
+# Possible values:
+# deduce - <No description provided>
+# user - <No description provided>
+# group - <No description provided>
+# all - <No description provided>
 #metadata_proxy_socket_mode = deduce
 
 # Number of separate worker processes for metadata server (defaults to half of
 # the number of CPUs) (integer value)
-#metadata_workers = 2
+#metadata_workers = <num_of_cpus> / 2
 
 # Number of backlog requests to configure the metadata server socket with
 # (integer value)
 #metadata_backlog = 4096
-
-# DEPRECATED: URL to connect to the cache back end. This option is deprecated
-# in the Newton release and will be removed. Please add a [cache] group for
-# oslo.cache in your neutron.conf and add "enable" and "backend" options in
-# this section. (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#cache_url =
 
 #
 # From oslo.log
@@ -129,6 +126,10 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 # Syslog facility to receive log lines. This option is ignored if
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
+
+# Use JSON formatting for logging. This option is ignored if log_config_append
+# is set. (boolean value)
+#use_json = false
 
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
@@ -220,7 +221,19 @@ metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 # (dogpile.cache.memcached) or Redis (dogpile.cache.redis) is recommended. Test
 # environments with a single instance of the server can use the
 # dogpile.cache.memory backend. (string value)
-# Allowed values: oslo_cache.memcache_pool, oslo_cache.dict, dogpile.cache.memcached, dogpile.cache.redis, dogpile.cache.memory, dogpile.cache.null
+# Possible values:
+# oslo_cache.memcache_pool - <No description provided>
+# oslo_cache.dict - <No description provided>
+# oslo_cache.mongo - <No description provided>
+# oslo_cache.etcd3gw - <No description provided>
+# dogpile.cache.memcached - <No description provided>
+# dogpile.cache.pylibmc - <No description provided>
+# dogpile.cache.bmemcached - <No description provided>
+# dogpile.cache.dbm - <No description provided>
+# dogpile.cache.redis - <No description provided>
+# dogpile.cache.memory - <No description provided>
+# dogpile.cache.memory_pickle - <No description provided>
+# dogpile.cache.null - <No description provided>
 #backend = dogpile.cache.null
 
 # Arguments supplied to the backend module. Specify this option once per

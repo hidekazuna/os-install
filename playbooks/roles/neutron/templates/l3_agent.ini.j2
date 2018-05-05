@@ -8,16 +8,12 @@
 #ovs_integration_bridge = br-int
 
 # Uses veth for an OVS interface or not. Support kernels with limited namespace
-# support (e.g. RHEL 6.5) so long as ovs_use_veth is set to True. (boolean
-# value)
+# support (e.g. RHEL 6.5) and rate limiting on router's gateway port so long as
+# ovs_use_veth is set to True. (boolean value)
 #ovs_use_veth = false
 
 # The driver used to manage the virtual interface. (string value)
 interface_driver = linuxbridge
-
-# Timeout in seconds for ovs-vsctl commands. If the timeout expires, ovs
-# commands will fail with ALARMCLOCK error. (integer value)
-#ovs_vsctl_timeout = 10
 
 #
 # From neutron.l3.agent
@@ -36,7 +32,11 @@ interface_driver = linuxbridge
 # the centralized network node that is running in 'dvr_snat' mode. This mode
 # should be used when there is no external network connectivity on the compute
 # host. (string value)
-# Allowed values: dvr, dvr_snat, legacy, dvr_no_external
+# Possible values:
+# dvr - <No description provided>
+# dvr_snat - <No description provided>
+# legacy - <No description provided>
+# dvr_no_external - <No description provided>
 #agent_mode = legacy
 
 # TCP Port used by Neutron metadata namespace proxy. (port value)
@@ -122,7 +122,9 @@ interface_driver = linuxbridge
 #ha_confs_path = $state_path/ha_confs
 
 # VRRP authentication type (string value)
-# Allowed values: AH, PASS
+# Possible values:
+# AH - <No description provided>
+# PASS - <No description provided>
 #ha_vrrp_auth_type = PASS
 
 # VRRP authentication password (string value)
@@ -145,8 +147,12 @@ interface_driver = linuxbridge
 # (integer value)
 #ha_vrrp_health_check_interval = 0
 
-# Service to handle DHCPv6 Prefix delegation. (string value)
-#pd_dhcp_driver = dibbler
+# Location to store IPv6 PD files. (string value)
+#pd_confs = $state_path/pd
+
+# A decimal value as Vendor's Registered Private Enterprise Number as required
+# by RFC3315 DUID-EN. (string value)
+#vendor_pen = 8888
 
 # Location to store IPv6 RA config files (string value)
 #ra_confs = $state_path/ra
@@ -213,6 +219,10 @@ interface_driver = linuxbridge
 # Syslog facility to receive log lines. This option is ignored if
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
+
+# Use JSON formatting for logging. This option is ignored if log_config_append
+# is set. (boolean value)
+#use_json = false
 
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
@@ -302,11 +312,33 @@ interface_driver = linuxbridge
 # From neutron.base.agent
 #
 
-# The interface for interacting with the OVSDB (string value)
-# Allowed values: vsctl, native
+# DEPRECATED: The interface for interacting with the OVSDB (string value)
+# Possible values:
+# vsctl - <No description provided>
+# native - <No description provided>
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #ovsdb_interface = native
 
 # The connection string for the OVSDB backend. Will be used by ovsdb-client
 # when monitoring and used for the all ovsdb commands when native
 # ovsdb_interface is enabled (string value)
 #ovsdb_connection = tcp:127.0.0.1:6640
+
+# The SSL private key file to use when interacting with OVSDB. Required when
+# using an "ssl:" prefixed ovsdb_connection (string value)
+#ssl_key_file = <None>
+
+# The SSL certificate file to use when interacting with OVSDB. Required when
+# using an "ssl:" prefixed ovsdb_connection (string value)
+#ssl_cert_file = <None>
+
+# The Certificate Authority (CA) certificate to use when interacting with
+# OVSDB.  Required when using an "ssl:" prefixed ovsdb_connection (string
+# value)
+#ssl_ca_cert_file = <None>
+
+# Timeout in seconds for ovsdb commands. If the timeout expires, ovsdb commands
+# will fail with ALARMCLOCK error. (integer value)
+# Deprecated group/name - [DEFAULT]/ovs_vsctl_timeout
+#ovsdb_timeout = 10
