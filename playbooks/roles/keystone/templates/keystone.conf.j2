@@ -11,10 +11,7 @@ log_dir = /var/log/keystone
 # represent a user (it has no identity), and carries no explicit authorization
 # (it effectively bypasses most authorization checks). If set to `None`, the
 # value is ignored and the `admin_token` middleware is effectively disabled.
-# However, to completely disable `admin_token` in production (highly
-# recommended, as it presents a security risk), remove
-# `AdminTokenAuthMiddleware` (the `admin_token_auth` filter) from your paste
-# application pipelines (for example, in `keystone-paste.ini`). (string value)
+# (string value)
 #admin_token = <None>
 
 # The base public endpoint URL for Keystone that is advertised to clients
@@ -50,19 +47,33 @@ log_dir = /var/log/keystone
 # this should be set to 32). (integer value)
 #max_token_size = 255
 
-# Similar to the `[DEFAULT] member_role_name` option, this represents the
-# default role ID used to associate users with their default projects in the v2
-# API. This will be used as the explicit role where one is not specified by the
-# v2 API. You do not need to set this value unless you want keystone to use an
-# existing role with a different ID, other than the arbitrarily defined
-# `_member_` role (in which case, you should set `[DEFAULT] member_role_name`
-# as well). (string value)
+# DEPRECATED: Similar to the `[DEFAULT] member_role_name` option, this
+# represents the default role ID used to associate users with their default
+# projects in the v2 API. This will be used as the explicit role where one is
+# not specified by the v2 API. You do not need to set this value unless you
+# want keystone to use an existing role with a different ID, other than the
+# arbitrarily defined `_member_` role (in which case, you should set `[DEFAULT]
+# member_role_name` as well). (string value)
+# This option is deprecated for removal since Q.
+# Its value may be silently ignored in the future.
+# Reason: This option was used to create a default member role for keystone v2
+# role assignments, but with the removal of the v2 API it is no longer
+# necessary to create this default role. This option is deprecated and will be
+# removed in the S release. If you are depending on having a predictable role
+# name and ID for this member role you will need to update your tooling.
 #member_role_id = 9fe2ff9ee4384b1894a90878d3e92bab
 
-# This is the role name used in combination with the `[DEFAULT] member_role_id`
-# option; see that option for more detail. You do not need to set this option
-# unless you want keystone to use an existing role (in which case, you should
-# set `[DEFAULT] member_role_id` as well). (string value)
+# DEPRECATED: This is the role name used in combination with the `[DEFAULT]
+# member_role_id` option; see that option for more detail. You do not need to
+# set this option unless you want keystone to use an existing role (in which
+# case, you should set `[DEFAULT] member_role_id` as well). (string value)
+# This option is deprecated for removal since Q.
+# Its value may be silently ignored in the future.
+# Reason: This option was used to create a default member role for keystone v2
+# role assignments, but with the removal of the v2 API it is no longer
+# necessary to create this default role. This option is deprecated and will be
+# removed in the S release. If you are depending on having a predictable role
+# name and ID for this member role you will need to update your tooling.
 #member_role_name = _member_
 
 # The value passed as the keyword "rounds" to passlib's encrypt method. This
@@ -116,7 +127,9 @@ log_dir = /var/log/keystone
 # the initiator of the event. The `cadf` option is entirely backwards
 # compatible with the `basic` option, but is fully CADF-compliant, and is
 # recommended for auditing use cases. (string value)
-# Allowed values: basic, cadf
+# Possible values:
+# basic - <No description provided>
+# cadf - <No description provided>
 #notification_format = cadf
 
 # You can reduce the number of notifications keystone emits by explicitly
@@ -189,6 +202,10 @@ log_dir = /var/log/keystone
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
 
+# Use JSON formatting for logging. This option is ignored if log_config_append
+# is set. (boolean value)
+#use_json = false
+
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
 #use_stderr = false
@@ -259,7 +276,10 @@ log_dir = /var/log/keystone
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, sentinel, dummy
+# Possible values:
+# redis - <No description provided>
+# sentinel - <No description provided>
+# dummy - <No description provided>
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
@@ -328,7 +348,9 @@ log_dir = /var/log/keystone
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -401,7 +423,16 @@ log_dir = /var/log/keystone
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
 
-# A URL representing the messaging driver to use and its full configuration.
+# The network address and optional user credentials for connecting to the
+# messaging backend, in URL format. The expected format is:
+#
+# driver://[user:pass@]host:port[,[userN:passN@]hostN:portN]/virtual_host?query
+#
+# Example: rabbit://rabbitmq:password@127.0.0.1:5672//
+#
+# For full details on the fields in the URL see the documentation of
+# oslo_messaging.TransportURL at
+# https://docs.openstack.org/oslo.messaging/latest/reference/transport.html
 # (string value)
 #transport_url = <None>
 
@@ -415,6 +446,33 @@ log_dir = /var/log/keystone
 # The default exchange under which topics are scoped. May be overridden by an
 # exchange name specified in the transport_url option. (string value)
 #control_exchange = keystone
+
+
+[application_credential]
+
+#
+# From keystone
+#
+
+# Entry point for the application credential backend driver in the
+# `keystone.application_credential` namespace.  Keystone only provides a `sql`
+# driver, so there is no reason to change this unless you are providing a
+# custom entry point. (string value)
+#driver = sql
+
+# Toggle for application credential caching. This has no effect unless global
+# caching is enabled. (boolean value)
+#caching = true
+
+# Time to cache application credential data in seconds. This has no effect
+# unless global caching is enabled. (integer value)
+#cache_time = <None>
+
+# Maximum number of application credentials a user is permitted to create. A
+# value of -1 means unlimited. If a limit is not set, users are permitted to
+# create application credentials at will, which could lead to bloat in the
+# keystone database or open keystone to a DoS attack. (integer value)
+#user_limit = -1
 
 
 [assignment]
@@ -445,7 +503,7 @@ log_dir = /var/log/keystone
 # both use the REMOTE_USER variable. Since both the mapped and external plugin
 # are being invoked to validate attributes in the request environment, it can
 # cause conflicts. (list value)
-#methods = external,password,token,oauth1,mapped
+#methods = external,password,token,oauth1,mapped,application_credential
 
 # Entry point for the password auth plugin module in the
 # `keystone.auth.password` namespace. You do not need to set this unless you
@@ -480,6 +538,12 @@ log_dir = /var/log/keystone
 # own `mapped` authentication plugin. (string value)
 #mapped = <None>
 
+# Entry point for the application_credential auth plugin module in the
+# `keystone.auth.application_credential` namespace. You do not need to set this
+# unless you are overriding keystone's own `application_credential`
+# authentication plugin. (string value)
+#application_credential = <None>
+
 
 [cache]
 
@@ -503,7 +567,19 @@ log_dir = /var/log/keystone
 # (dogpile.cache.memcached) or Redis (dogpile.cache.redis) is recommended. Test
 # environments with a single instance of the server can use the
 # dogpile.cache.memory backend. (string value)
-# Allowed values: oslo_cache.memcache_pool, oslo_cache.dict, dogpile.cache.memcached, dogpile.cache.redis, dogpile.cache.memory, dogpile.cache.null
+# Possible values:
+# oslo_cache.memcache_pool - <No description provided>
+# oslo_cache.dict - <No description provided>
+# oslo_cache.mongo - <No description provided>
+# oslo_cache.etcd3gw - <No description provided>
+# dogpile.cache.memcached - <No description provided>
+# dogpile.cache.pylibmc - <No description provided>
+# dogpile.cache.bmemcached - <No description provided>
+# dogpile.cache.dbm - <No description provided>
+# dogpile.cache.redis - <No description provided>
+# dogpile.cache.memory - <No description provided>
+# dogpile.cache.memory_pickle - <No description provided>
+# dogpile.cache.null - <No description provided>
 #backend = dogpile.cache.null
 
 # Arguments supplied to the backend module. Specify this option once per
@@ -676,11 +752,15 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # (boolean value)
 #mysql_enable_ndb = false
 
-# Timeout before idle SQL connections are reaped. (integer value)
+# Connections which have been present in the connection pool longer than this
+# number of seconds will be replaced with a new one the next time they are
+# checked out from the pool. (integer value)
+# Deprecated group/name - [DATABASE]/idle_timeout
+# Deprecated group/name - [database]/idle_timeout
 # Deprecated group/name - [DEFAULT]/sql_idle_timeout
 # Deprecated group/name - [DATABASE]/sql_idle_timeout
 # Deprecated group/name - [sql]/idle_timeout
-#idle_timeout = 3600
+#connection_recycle_time = 3600
 
 # Minimum number of SQL connections to keep open in a pool. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_min_pool_size
@@ -1041,7 +1121,10 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 
 # The password hashing algorithm to use for passwords stored within keystone.
 # (string value)
-# Allowed values: bcrypt, scrypt, pbkdf2_sha512
+# Possible values:
+# bcrypt - <No description provided>
+# scrypt - <No description provided>
+# pbkdf2_sha512 - <No description provided>
 #password_hash_algorithm = bcrypt
 
 # This option represents a trade off between security and performance. Higher
@@ -1073,16 +1156,6 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # Minimum value: 0
 # Maximum value: 96
 #salt_bytesize = <None>
-
-# This option tells keystone to continue to hash passwords with the
-# sha512_crypt algorithm for supporting rolling upgrades. sha512_crypt is
-# typically more insecure than bcrypt, pbkdf2, and scrypt. This option should
-# be set to `False` except in the case of performing a rolling upgrade where
-# some Keystone servers may not know how to verify non-sha512_crypt based
-# password hashes.  This option will be removed in the Queens release and is
-# only to support rolling upgrades from Ocata release to Pike release. (boolean
-# value)
-#rolling_upgrade_password_hash_compat = false
 
 
 [identity_mapping]
@@ -1152,7 +1225,9 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # base object itself. A value of `sub` (representing `subtree` or
 # `wholeSubtree`) indicates a search of both the base object itself and the
 # entire subtree below it. (string value)
-# Allowed values: one, sub
+# Possible values:
+# one - <No description provided>
+# sub - <No description provided>
 #query_scope = one
 
 # Defines the maximum number of results per page that keystone should request
@@ -1168,7 +1243,12 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # resolution. A value of `finding` dereferences aliases only during name
 # resolution. A value of `always` dereferences aliases in all cases. (string
 # value)
-# Allowed values: never, searching, always, finding, default
+# Possible values:
+# never - <No description provided>
+# searching - <No description provided>
+# always - <No description provided>
+# finding - <No description provided>
+# default - <No description provided>
 #alias_dereferencing = default
 
 # Sets the LDAP debugging level for LDAP calls. A value of 0 means that
@@ -1343,7 +1423,10 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # required from the LDAP server. If set to `allow`, then a certificate will
 # always be requested but not required from the LDAP server. If set to `never`,
 # then a certificate will never be requested. (string value)
-# Allowed values: demand, never, allow
+# Possible values:
+# demand - <No description provided>
+# never - <No description provided>
+# allow - <No description provided>
 #tls_req_cert = demand
 
 # The connection timeout to use with the LDAP server. A value of `-1` means
@@ -1537,6 +1620,14 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # Password for decrypting ssl_key_file (if encrypted) (string value)
 #ssl_key_password = <None>
 
+# By default SSL checks that the name in the server's certificate matches the
+# hostname in the transport_url. In some configurations it may be preferable to
+# use the virtual hostname instead, for example if the server uses the Server
+# Name Indication TLS extension (rfc6066) to provide a certificate per virtual
+# host. Set ssl_verify_vhost to True if the server's SSL certificate uses the
+# virtual host name instead of the DNS name. (boolean value)
+#ssl_verify_vhost = false
+
 # DEPRECATED: Accept clients using either SSL or plain TCP (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -1619,6 +1710,14 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # 'dynamic'  - use legacy addresses if the message bus does not support routing
 # otherwise use routable addressing (string value)
 #addressing_mode = dynamic
+
+# Enable virtual host support for those message buses that do not natively
+# support virtual hosting (such as qpidd). When set to true the virtual host
+# name will be added to all message bus addresses, effectively creating a
+# private 'subnet' per virtual host. Set to False if the message bus supports
+# virtual hosting using the 'hostname' field in the AMQP 1.0 Open performative
+# as the name of the virtual host. (boolean value)
+#pseudo_vhost = true
 
 # address prefix used when sending to a specific server (string value)
 #server_request_prefix = exclusive
@@ -1717,13 +1816,24 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # Default timeout(s) for Kafka consumers (floating point value)
 #kafka_consumer_timeout = 1.0
 
-# Pool Size for Kafka Consumers (integer value)
+# DEPRECATED: Pool Size for Kafka Consumers (integer value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #pool_size = 10
 
-# The pool size limit for connections expiration policy (integer value)
+# DEPRECATED: The pool size limit for connections expiration policy (integer
+# value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #conn_pool_min_size = 2
 
-# The time-to-live in sec of idle connections in the pool (integer value)
+# DEPRECATED: The time-to-live in sec of idle connections in the pool (integer
+# value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #conn_pool_ttl = 1200
 
 # Group id for Kafka consumer. Consumers in one group will coordinate message
@@ -1816,7 +1926,9 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # Determines how the next RabbitMQ node is chosen in case the one we are
 # currently connected to becomes unavailable. Takes effect only if more than
 # one RabbitMQ node is provided in config. (string value)
-# Allowed values: round-robin, shuffle
+# Possible values:
+# round-robin - <No description provided>
+# shuffle - <No description provided>
 #kombu_failover_strategy = round-robin
 
 # DEPRECATED: The RabbitMQ broker address where a single node is used. (string
@@ -1854,7 +1966,10 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 #rabbit_password = guest
 
 # The RabbitMQ login method. (string value)
-# Allowed values: PLAIN, AMQPLAIN, RABBIT-CR-DEMO
+# Possible values:
+# PLAIN - <No description provided>
+# AMQPLAIN - <No description provided>
+# RABBIT-CR-DEMO - <No description provided>
 #rabbit_login_method = AMQPLAIN
 
 # DEPRECATED: The RabbitMQ virtual host. (string value)
@@ -1934,7 +2049,10 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 #host_connection_reconnect_delay = 0.25
 
 # Connection factory implementation (string value)
-# Allowed values: new, single, read_write
+# Possible values:
+# new - <No description provided>
+# single - <No description provided>
+# read_write - <No description provided>
 #connection_factory = single
 
 # Maximum number of connections to keep queued. (integer value)
@@ -1959,7 +2077,9 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #default_serializer_type = json
 
 # Persist notification messages. (boolean value)
@@ -2026,7 +2146,10 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, sentinel, dummy
+# Possible values:
+# redis - <No description provided>
+# sentinel - <No description provided>
+# dummy - <No description provided>
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
@@ -2095,7 +2218,9 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -2190,6 +2315,14 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # From oslo.policy
 #
 
+# This option controls whether or not to enforce scope when evaluating
+# policies. If ``True``, the scope of the token used in the request is compared
+# to the ``scope_types`` of the policy being enforced. If the scopes do not
+# match, an ``InvalidScope`` exception will be raised. If ``False``, a message
+# will be logged informing operators that policies are being invoked with
+# mismatching scope. (boolean value)
+#enforce_scope = false
+
 # The file that defines policies. (string value)
 #policy_file = policy.json
 
@@ -2202,6 +2335,25 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # directories to be searched.  Missing or empty directories are ignored. (multi
 # valued)
 #policy_dirs = policy.d
+
+# Content Type to send and receive data for REST based policy check (string
+# value)
+# Possible values:
+# application/x-www-form-urlencoded - <No description provided>
+# application/json - <No description provided>
+#remote_content_type = application/x-www-form-urlencoded
+
+# server identity verification for REST based policy check (boolean value)
+#remote_ssl_verify_server_crt = false
+
+# Absolute path to ca cert file for REST based policy check (string value)
+#remote_ssl_ca_crt_file = <None>
+
+# Absolute path to client cert for REST based policy check (string value)
+#remote_ssl_client_crt_file = <None>
+
+# Absolute path client key file REST based policy check (string value)
+#remote_ssl_client_key_file = <None>
 
 
 [paste_deploy]
@@ -2384,7 +2536,10 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # project with a URL-unsafe name will fail. If set to `strict`, attempts to
 # scope a token with a URL-unsafe project name will fail, thereby forcing all
 # project names to be updated to be URL-safe. (string value)
-# Allowed values: off, new, strict
+# Possible values:
+# off - <No description provided>
+# new - <No description provided>
+# strict - <No description provided>
 #project_name_url_safe = off
 
 # This controls whether the names of domains are restricted from containing
@@ -2392,7 +2547,10 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 # domain with a URL-unsafe name will fail. If set to `strict`, attempts to
 # scope a token with a URL-unsafe domain name will fail, thereby forcing all
 # domain names to be updated to be URL-safe. (string value)
-# Allowed values: off, new, strict
+# Possible values:
+# off - <No description provided>
+# new - <No description provided>
+# strict - <No description provided>
 #domain_name_url_safe = off
 
 
@@ -2523,7 +2681,12 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 
 # This is the type of contact that best describes the identity provider's
 # contact person. (string value)
-# Allowed values: technical, support, administrative, billing, other
+# Possible values:
+# technical - <No description provided>
+# support - <No description provided>
+# administrative - <No description provided>
+# billing - <No description provided>
+# other - <No description provided>
 #idp_contact_type = other
 
 # Absolute path to the identity provider metadata file. This file should be
@@ -2581,10 +2744,11 @@ connection = mysql+pymysql://keystone:{{ KEYSTONE_DBPASS }}@{{ db_host }}/keysto
 #password_expires_days = <None>
 
 # This controls the number of previous user password iterations to keep in
-# history, in order to enforce that newly created passwords are unique. Setting
-# the value to one (the default) disables this feature. Thus, to enable this
-# feature, values must be greater than 1. This feature depends on the `sql`
-# backend for the `[identity] driver`. (integer value)
+# history, in order to enforce that newly created passwords are unique. The
+# total number which includes the new password should not be greater or equal
+# to this value. Setting the value to one (the default) disables this feature.
+# Thus, to enable this feature, values must be greater than 1. This feature
+# depends on the `sql` backend for the `[identity] driver`. (integer value)
 # Minimum value: 1
 #unique_last_password_count = 1
 
@@ -2859,8 +3023,12 @@ provider = fernet
 # From keystone
 #
 
-# Delegation and impersonation features using trusts can be optionally
-# disabled. (boolean value)
+# DEPRECATED: Delegation and impersonation features using trusts can be
+# optionally disabled. (boolean value)
+# This option is deprecated for removal since Q.
+# Its value may be silently ignored in the future.
+# Reason: Disabling the trusts API is deprecated. This option will be removed
+# in the next release and trusts will always be enabled.
 #enabled = true
 
 # Allows authorization to be redelegated from one user to another, effectively
@@ -2877,3 +3045,30 @@ provider = fernet
 # Keystone only provides a `sql` driver, so there is no reason to change this
 # unless you are providing a custom entry point. (string value)
 #driver = sql
+
+
+[unified_limit]
+
+#
+# From keystone
+#
+
+# Entry point for the unified limit backend driver in the
+# `keystone.unified_limit` namespace. Keystone only provides a `sql` driver, so
+# there's no reason to change this unless you are providing a custom entry
+# point. (string value)
+#driver = sql
+
+# Toggle for unified limit caching. This has no effect unless global caching is
+# enabled. In a typical deployment, there is no reason to disable this.
+# (boolean value)
+#caching = true
+
+# Time to cache unified limit data, in seconds. This has no effect unless both
+# global caching and `[unified_limit] caching` are enabled. (integer value)
+#cache_time = <None>
+
+# Maximum number of entities that will be returned in a role collection. This
+# may be useful to tune if you have a large number of unified limits in your
+# deployment. (integer value)
+#list_limit = <None>
