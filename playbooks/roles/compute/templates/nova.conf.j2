@@ -6,49 +6,6 @@ state_path = /var/lib/nova
 # From nova.conf
 #
 
-# DEPRECATED:
-# When returning instance metadata, this is the class that is used
-# for getting vendor metadata when that class isn't specified in the individual
-# request. The value should be the full dot-separated path to the class to use.
-#
-# Possible values:
-#
-# * Any valid dot-separated class path that can be imported.
-#  (string value)
-# This option is deprecated for removal since 13.0.0.
-# Its value may be silently ignored in the future.
-#vendordata_driver = nova.api.metadata.vendordata_json.JsonFileVendorData
-
-# DEPRECATED:
-# This option is used to enable or disable quota checking for tenant networks.
-#
-# Related options:
-#
-# * quota_networks
-#  (boolean value)
-# This option is deprecated for removal since 14.0.0.
-# Its value may be silently ignored in the future.
-# Reason:
-# CRUD operations on tenant networks are only available when using nova-network
-# and nova-network is itself deprecated.
-#enable_network_quota = false
-
-# DEPRECATED:
-# This option controls the number of private networks that can be created per
-# project (or per tenant).
-#
-# Related options:
-#
-# * enable_network_quota
-#  (integer value)
-# Minimum value: 0
-# This option is deprecated for removal since 14.0.0.
-# Its value may be silently ignored in the future.
-# Reason:
-# CRUD operations on tenant networks are only available when using nova-network
-# and nova-network is itself deprecated.
-#quota_networks = 3
-
 #
 # Availability zone for internal services.
 #
@@ -127,7 +84,7 @@ state_path = /var/lib/nova
 # Explicitly specify the temporary working directory. (string value)
 #tempdir = <None>
 
-#
+# DEPRECATED:
 # Determine if monkey patching should be applied.
 #
 # Related options:
@@ -135,9 +92,14 @@ state_path = /var/lib/nova
 # * ``monkey_patch_modules``: This must have values set for this option to
 #   have any effect
 #  (boolean value)
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# Monkey patching nova is not tested, not supported, and is a barrier
+# for interoperability.
 #monkey_patch = false
 
-#
+# DEPRECATED:
 # List of modules/decorators to monkey patch.
 #
 # This option allows you to patch a decorator for all functions in specified
@@ -146,7 +108,6 @@ state_path = /var/lib/nova
 # Possible values:
 #
 # * nova.compute.api:nova.notifications.notify_decorator
-# * nova.api.ec2.cloud:nova.notifications.notify_decorator
 # * [...]
 #
 # Related options:
@@ -154,6 +115,11 @@ state_path = /var/lib/nova
 # * ``monkey_patch``: This must be set to ``True`` for this option to
 #   have any effect
 #  (list value)
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# Monkey patching nova is not tested, not supported, and is a barrier
+# for interoperability.
 #monkey_patch_modules = nova.compute.api:nova.notifications.notify_decorator
 
 #
@@ -167,6 +133,7 @@ state_path = /var/lib/nova
 # * ``ironic.IronicDriver``
 # * ``vmwareapi.VMwareVCDriver``
 # * ``hyperv.HyperVDriver``
+# * ``powervm.PowerVMDriver``
 #  (string value)
 #compute_driver = <None>
 
@@ -188,29 +155,16 @@ state_path = /var/lib/nova
 #
 # Possible values:
 #
-# * A list whose item is an image property. Usually only the image
-#   properties that are only needed by base images can be included
-#   here, since the snapshots that are created from the base images
-#   doesn't need them.
-# * Default list: ['cache_in_nova', 'bittorrent']
+# * A comma-separated list whose item is an image property. Usually only
+#   the image properties that are only needed by base images can be included
+#   here, since the snapshots that are created from the base images don't
+#   need them.
+# * Default list: cache_in_nova, bittorrent, img_signature_hash_method,
+#                 img_signature, img_signature_key_type,
+#                 img_signature_certificate_uuid
+#
 #  (list value)
-#non_inheritable_image_properties = cache_in_nova,bittorrent
-
-# DEPRECATED:
-# This option is used to decide when an image should have no external
-# ramdisk or kernel. By default this is set to 'nokernel', so when an
-# image is booted with the property 'kernel_id' with the value
-# 'nokernel', Nova assumes the image doesn't require an external kernel
-# and ramdisk.
-#  (string value)
-# This option is deprecated for removal since 15.0.0.
-# Its value may be silently ignored in the future.
-# Reason:
-# When an image is booted with the property 'kernel_id' with the value
-# 'nokernel', Nova assumes the image doesn't require an external kernel and
-# ramdisk. This option allows user to change the API behaviour which should not
-# be allowed and this value "nokernel" should be hard coded.
-#null_kernel = nokernel
+#non_inheritable_image_properties = cache_in_nova,bittorrent,img_signature_hash_method,img_signature,img_signature_key_type,img_signature_certificate_uuid
 
 # DEPRECATED:
 # When creating multiple instances with a single request using the
@@ -253,17 +207,22 @@ state_path = /var/lib/nova
 #max_local_block_devices = 3
 
 #
-# A list of monitors that can be used for getting compute metrics.
-# You can use the alias/name from the setuptools entry points for
-# nova.compute.monitors.* namespaces. If no namespace is supplied,
-# the "cpu." namespace is assumed for backwards-compatibility.
+# A comma-separated list of monitors that can be used for getting
+# compute metrics. You can use the alias/name from the setuptools
+# entry points for nova.compute.monitors.* namespaces. If no
+# namespace is supplied, the "cpu." namespace is assumed for
+# backwards-compatibility.
+#
+# NOTE: Only one monitor per namespace (For example: cpu) can be loaded at
+# a time.
 #
 # Possible values:
 #
-# * An empty list will disable the feature(Default).
+# * An empty list will disable the feature (Default).
 # * An example value that would enable both the CPU and NUMA memory
-#   bandwidth monitors that used the virt driver variant:
-#   ["cpu.virt_driver", "numa_mem_bw.virt_driver"]
+#   bandwidth monitors that use the virt driver variant:
+#
+#     compute_monitors = cpu.virt_driver, numa_mem_bw.virt_driver
 #  (list value)
 #compute_monitors =
 
@@ -359,7 +318,9 @@ state_path = /var/lib/nova
 # * "none"  => no storage provisioning is done up front
 # * "space" => storage is fully allocated at instance start
 #  (string value)
-# Allowed values: none, space
+# Possible values:
+# none - <No description provided>
+# space - <No description provided>
 #preallocate_images = none
 
 #
@@ -443,7 +404,10 @@ state_path = /var/lib/nova
 #   agent disabled. When used with libvirt the instance mode should be
 #   configured as HVM.
 #   (string value)
-# Allowed values: <None>, ps2mouse, usbtablet
+# Possible values:
+# <None> - <No description provided>
+# ps2mouse - <No description provided>
+# usbtablet - <No description provided>
 #pointer_model = usbtablet
 
 #
@@ -1074,7 +1038,11 @@ state_path = /var/lib/nova
 # * running_deleted_instance_poll_interval
 # * running_deleted_instance_timeout
 #  (string value)
-# Allowed values: noop, log, shutdown, reap
+# Possible values:
+# noop - <No description provided>
+# log - <No description provided>
+# shutdown - <No description provided>
+# reap - <No description provided>
 #running_deleted_instance_action = reap
 
 #
@@ -1145,7 +1113,10 @@ state_path = /var/lib/nova
 # * "global": The instance name check is done for all instances regardless of
 #   the project.
 #  (string value)
-# Allowed values: '', project, global
+# Possible values:
+# '' - <No description provided>
+# project - <No description provided>
+# global - <No description provided>
 #osapi_compute_unique_server_name_scope =
 
 #
@@ -1232,7 +1203,9 @@ state_path = /var/lib/nova
 #   configuration drive as a CD drive. To attach the configuration drive as a CD
 #   drive, set config_drive_cdrom option at hyperv section, to true.
 #  (string value)
-# Allowed values: iso9660, vfat
+# Possible values:
+# iso9660 - <No description provided>
+# vfat - <No description provided>
 #config_drive_format = iso9660
 
 #
@@ -1303,26 +1276,6 @@ state_path = /var/lib/nova
 # Reason: The EC2 API is deprecated.
 #default_flavor = m1.small
 
-# DEPRECATED:
-# Abstracts out IPv6 address generation to pluggable backends.
-#
-# nova-network can be put into dual-stack mode, so that it uses
-# both IPv4 and IPv6 addresses. In dual-stack mode, by default, instances
-# acquire IPv6 global unicast addresses with the help of stateless address
-# auto-configuration mechanism.
-#
-# Related options:
-#
-# * use_neutron: this option only works with nova-network.
-# * use_ipv6: this option only works if ipv6 is enabled for nova-network.
-#  (string value)
-# Allowed values: rfc2462, account_identifier
-# This option is deprecated for removal since 16.0.0.
-# Its value may be silently ignored in the future.
-# Reason:
-# nova-network is deprecated, as are any related configuration options.
-#ipv6_backend = rfc2462
-
 #
 # The IP address which the host is using to connect to the management network.
 #
@@ -1370,19 +1323,6 @@ my_ip = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['ad
 # * String with hostname, FQDN or IP address. Default is hostname of this host.
 #  (string value)
 #host = <current_hostname>
-
-# DEPRECATED:
-# Assign IPv6 and IPv4 addresses when creating instances.
-#
-# Related options:
-#
-# * use_neutron: this only works with nova-network.
-#  (boolean value)
-# This option is deprecated for removal since 16.0.0.
-# Its value may be silently ignored in the future.
-# Reason:
-# nova-network is deprecated, as are any related configuration options.
-#use_ipv6 = false
 
 # DEPRECATED:
 # This option is a list of full paths to one or more configuration files for
@@ -2617,6 +2557,71 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 # nova-network is deprecated, as are any related configuration options.
 #instance_dns_domain =
 
+# DEPRECATED:
+# Assign IPv6 and IPv4 addresses when creating instances.
+#
+# Related options:
+#
+# * use_neutron: this only works with nova-network.
+#  (boolean value)
+# This option is deprecated for removal since 16.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# nova-network is deprecated, as are any related configuration options.
+#use_ipv6 = false
+
+# DEPRECATED:
+# Abstracts out IPv6 address generation to pluggable backends.
+#
+# nova-network can be put into dual-stack mode, so that it uses
+# both IPv4 and IPv6 addresses. In dual-stack mode, by default, instances
+# acquire IPv6 global unicast addresses with the help of stateless address
+# auto-configuration mechanism.
+#
+# Related options:
+#
+# * use_neutron: this option only works with nova-network.
+# * use_ipv6: this option only works if ipv6 is enabled for nova-network.
+#  (string value)
+# Possible values:
+# rfc2462 - <No description provided>
+# account_identifier - <No description provided>
+# This option is deprecated for removal since 16.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# nova-network is deprecated, as are any related configuration options.
+#ipv6_backend = rfc2462
+
+# DEPRECATED:
+# This option is used to enable or disable quota checking for tenant networks.
+#
+# Related options:
+#
+# * quota_networks
+#  (boolean value)
+# This option is deprecated for removal since 14.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# CRUD operations on tenant networks are only available when using nova-network
+# and nova-network is itself deprecated.
+#enable_network_quota = false
+
+# DEPRECATED:
+# This option controls the number of private networks that can be created per
+# project (or per tenant).
+#
+# Related options:
+#
+# * enable_network_quota
+#  (integer value)
+# Minimum value: 0
+# This option is deprecated for removal since 14.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# CRUD operations on tenant networks are only available when using nova-network
+# and nova-network is itself deprecated.
+#quota_networks = 3
+
 #
 # Filename that will be used for storing websocket frames received
 # and sent by a proxy service (like VNC, spice, serial) running on this host.
@@ -2660,7 +2665,7 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 #
 # * ``state_path``
 #  (string value)
-#pybasedir = /build/nova-zc5G3_/nova-16.0.1
+#pybasedir = /build/nova-QVDFZr/nova-17.0.1
 
 #
 # The directory where the Nova binaries are installed.
@@ -2831,7 +2836,10 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 #metadata_workers = <None>
 
 # Full class name for the Manager for network (string value)
-# Allowed values: nova.network.manager.FlatManager, nova.network.manager.FlatDHCPManager, nova.network.manager.VlanManager
+# Possible values:
+# nova.network.manager.FlatManager - <No description provided>
+# nova.network.manager.FlatDHCPManager - <No description provided>
+# nova.network.manager.VlanManager - <No description provided>
 #network_manager = nova.network.manager.VlanManager
 
 #
@@ -2855,7 +2863,9 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 #
 #     * service_down_time (maximum time since last check-in for up service)
 #  (string value)
-# Allowed values: db, mc
+# Possible values:
+# db - <No description provided>
+# mc - <No description provided>
 #servicegroup_driver = db
 
 #
@@ -2914,6 +2924,10 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 # Syslog facility to receive log lines. This option is ignored if
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
+
+# Use JSON formatting for logging. This option is ignored if log_config_append
+# is set. (boolean value)
+#use_json = false
 
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
@@ -2984,7 +2998,10 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, sentinel, dummy
+# Possible values:
+# redis - <No description provided>
+# sentinel - <No description provided>
+# dummy - <No description provided>
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
@@ -3053,7 +3070,9 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -3125,7 +3144,16 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
 
-# A URL representing the messaging driver to use and its full configuration.
+# The network address and optional user credentials for connecting to the
+# messaging backend, in URL format. The expected format is:
+#
+# driver://[user:pass@]host:port[,[userN:passN@]hostN:portN]/virtual_host?query
+#
+# Example: rabbit://rabbitmq:password@127.0.0.1:5672//
+#
+# For full details on the fields in the URL see the documentation of
+# oslo_messaging.TransportURL at
+# https://docs.openstack.org/oslo.messaging/latest/reference/transport.html
 # (string value)
 transport_url = rabbit://openstack:{{ RABBIT_PASS }}@{{ api_host }}
 
@@ -3189,7 +3217,9 @@ transport_url = rabbit://openstack:{{ RABBIT_PASS }}@{{ api_host }}
 # checking. 'noauth2' provides administrative credentials only if 'admin' is
 # specified as the username.
 #  (string value)
-# Allowed values: keystone, noauth2
+# Possible values:
+# keystone - <No description provided>
+# noauth2 - <No description provided>
 auth_strategy = keystone
 
 #
@@ -3256,7 +3286,7 @@ auth_strategy = keystone
 # * vendordata_dynamic_read_timeout
 # * vendordata_dynamic_failure_fatal
 #  (list value)
-#vendordata_providers =
+#vendordata_providers = StaticJSON
 
 #
 # A list of targets for the dynamic vendordata provider. These targets are of
@@ -3407,7 +3437,7 @@ auth_strategy = keystone
 # Disabling snapshots should be done via policy if so desired.
 #allow_instance_snapshots = true
 
-#
+# DEPRECATED:
 # This option is a list of all instance states for which network address
 # information should not be returned from the API.
 #
@@ -3430,6 +3460,12 @@ auth_strategy = keystone
 # * "shelved_offloaded"
 #  (list value)
 # Deprecated group/name - [DEFAULT]/osapi_hide_server_address_states
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason: This option hide the server address in server representation for
+# configured server states. Which makes GET server API controlled by this config
+# options. Due to this config options, user would not be able to discover the
+# API behavior on different clouds which leads to the interop issue.
 #hide_server_address_states = building
 
 # The full path to the fping binary. (string value)
@@ -3492,8 +3528,11 @@ connection = sqlite:////var/lib/nova/nova_api.sqlite
 # (string value)
 #mysql_sql_mode = TRADITIONAL
 
-# Timeout before idle SQL connections are reaped. (integer value)
-#idle_timeout = 3600
+# Connections which have been present in the connection pool longer than this
+# number of seconds will be replaced with a new one the next time they are
+# checked out from the pool. (integer value)
+# Deprecated group/name - [api_database]/idle_timeout
+#connection_recycle_time = 3600
 
 # Maximum number of SQL connections to keep open in a pool. Setting a value of 0
 # indicates no limit. (integer value)
@@ -3534,6 +3573,7 @@ connection = sqlite:////var/lib/nova/nova_api.sqlite
 #barbican_api_version = <None>
 
 # Use this endpoint to connect to Keystone (string value)
+# Deprecated group/name - [key_manager]/auth_url
 #auth_endpoint = http://localhost/identity/v3
 
 # Number of seconds to wait before retrying poll for key creation completion
@@ -3570,7 +3610,19 @@ connection = sqlite:////var/lib/nova/nova_api.sqlite
 # (dogpile.cache.memcached) or Redis (dogpile.cache.redis) is recommended. Test
 # environments with a single instance of the server can use the
 # dogpile.cache.memory backend. (string value)
-# Allowed values: oslo_cache.memcache_pool, oslo_cache.dict, dogpile.cache.memcached, dogpile.cache.redis, dogpile.cache.memory, dogpile.cache.null
+# Possible values:
+# oslo_cache.memcache_pool - <No description provided>
+# oslo_cache.dict - <No description provided>
+# oslo_cache.mongo - <No description provided>
+# oslo_cache.etcd3gw - <No description provided>
+# dogpile.cache.memcached - <No description provided>
+# dogpile.cache.pylibmc - <No description provided>
+# dogpile.cache.bmemcached - <No description provided>
+# dogpile.cache.dbm - <No description provided>
+# dogpile.cache.redis - <No description provided>
+# dogpile.cache.memory - <No description provided>
+# dogpile.cache.memory_pickle - <No description provided>
+# dogpile.cache.null - <No description provided>
 #backend = dogpile.cache.null
 
 # Arguments supplied to the backend module. Specify this option once per
@@ -3753,7 +3805,9 @@ enable = False
 # * quota_driver: Disable quota checking for the child cells.
 #   (nova.quota.NoopQuotaDriver)
 #  (string value)
-# Allowed values: api, compute
+# Possible values:
+# api - <No description provided>
+# compute - <No description provided>
 # This option is deprecated for removal since 16.0.0.
 # Its value may be silently ignored in the future.
 # Reason: Cells v1 is being replaced with Cells v2.
@@ -4149,7 +4203,7 @@ enable = False
 # * Format is separated values of the form:
 #   <service_type>:<service_name>:<endpoint_type>
 #
-# Note: Nova does not support the Cinder v1 API since the Nova 15.0.0 Ocata
+# Note: Nova does not support the Cinder v2 API since the Nova 17.0.0 Queens
 # release.
 #
 # Related options:
@@ -4165,9 +4219,9 @@ enable = False
 # Possible values:
 #
 # * URL for cinder endpoint API
-#   e.g. http://localhost:8776/v2/%(project_id)s
+#   e.g. http://localhost:8776/v3/%(project_id)s
 #
-# Note: Nova does not support the Cinder v1 API since the Nova 15.0.0 Ocata
+# Note: Nova does not support the Cinder v2 API since the Nova 17.0.0 Queens
 # release.
 #
 # Related options:
@@ -4230,6 +4284,72 @@ enable = False
 
 # Timeout value for http requests (integer value)
 #timeout = <None>
+
+# Authentication type to load (string value)
+# Deprecated group/name - [cinder]/auth_plugin
+#auth_type = <None>
+
+# Config Section from which to load plugin specific options (string value)
+#auth_section = <None>
+
+# Authentication URL (string value)
+#auth_url = <None>
+
+# Scope for system operations (string value)
+#system_scope = <None>
+
+# Domain ID to scope to (string value)
+#domain_id = <None>
+
+# Domain name to scope to (string value)
+#domain_name = <None>
+
+# Project ID to scope to (string value)
+#project_id = <None>
+
+# Project name to scope to (string value)
+#project_name = <None>
+
+# Domain ID containing project (string value)
+#project_domain_id = <None>
+
+# Domain name containing project (string value)
+#project_domain_name = <None>
+
+# Trust ID (string value)
+#trust_id = <None>
+
+# Optional domain ID to use with v3 and v2 parameters. It will be used for both
+# the user and project domain in v3 and ignored in v2 authentication. (string
+# value)
+#default_domain_id = <None>
+
+# Optional domain name to use with v3 API and v2 parameters. It will be used for
+# both the user and project domain in v3 and ignored in v2 authentication.
+# (string value)
+#default_domain_name = <None>
+
+# User ID (string value)
+#user_id = <None>
+
+# Username (string value)
+# Deprecated group/name - [cinder]/user_name
+#username = <None>
+
+# User's domain id (string value)
+#user_domain_id = <None>
+
+# User's domain name (string value)
+#user_domain_name = <None>
+
+# User's password (string value)
+#password = <None>
+
+# Tenant ID (string value)
+#tenant_id = <None>
+
+# Tenant Name (string value)
+#tenant_name = <None>
 
 
 [compute]
@@ -4322,7 +4442,7 @@ enable = False
 #
 
 #
-# The lifetime of a console auth token.
+# The lifetime of a console auth token (in seconds).
 #
 # A console auth token is used in authorizing console access for a user.
 # Once the auth token time to live count has elapsed, the token is
@@ -4471,11 +4591,15 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 # (boolean value)
 #mysql_enable_ndb = false
 
-# Timeout before idle SQL connections are reaped. (integer value)
+# Connections which have been present in the connection pool longer than this
+# number of seconds will be replaced with a new one the next time they are
+# checked out from the pool. (integer value)
+# Deprecated group/name - [DATABASE]/idle_timeout
+# Deprecated group/name - [database]/idle_timeout
 # Deprecated group/name - [DEFAULT]/sql_idle_timeout
 # Deprecated group/name - [DATABASE]/sql_idle_timeout
 # Deprecated group/name - [sql]/idle_timeout
-#idle_timeout = 3600
+#connection_recycle_time = 3600
 
 # Minimum number of SQL connections to keep open in a pool. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_min_pool_size
@@ -4546,6 +4670,26 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 # value)
 # Deprecated group/name - [DEFAULT]/dbapi_use_tpool
 #use_tpool = false
+
+
+[devices]
+
+#
+# From nova.conf
+#
+
+#
+# A list of the vGPU types enabled in the compute node.
+#
+# Some pGPUs (e.g. NVIDIA GRID K1) support different vGPU types. User can use
+# this option to specify a list of enabled vGPU types that may be assigned to a
+# guest instance. But please note that Nova only supports a single type in the
+# Queens release. If more than one vGPU type is specified (as a comma-separated
+# list), only the first one will be used. An example is as the following:
+#     [devices]
+#     enabled_vgpu_types = GRID K100,Intel GVT-g,MxGPU.2,nvidia-11
+#  (list value)
+#enabled_vgpu_types =
 
 
 [ephemeral_storage_encryption]
@@ -4683,7 +4827,7 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 #
 # An unordered list of the filter classes the nova scheduler may apply.  Only
 # the
-# filters specified in the 'scheduler_enabled_filters' option will be used, but
+# filters specified in the 'enabled_filters' option will be used, but
 # any filter appearing in that option must also be included in this list.
 #
 # By default, this is set to all filters that are included with nova.
@@ -4698,7 +4842,7 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 #
 # Related options:
 #
-# * scheduler_enabled_filters
+# * enabled_filters
 #  (multi valued)
 # Deprecated group/name - [DEFAULT]/scheduler_available_filters
 #available_filters = nova.scheduler.filters.all_filters
@@ -4761,7 +4905,7 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 # Enable baremetal filters.
 #
 # Set this to True to tell the nova scheduler that it should use the filters
-# specified in the 'baremetal_scheduler_enabled_filters' option. If you are not
+# specified in the 'baremetal_enabled_filters' option. If you are not
 # scheduling baremetal nodes, leave this at the default setting of False.
 #
 # This option is only used by the FilterScheduler and its subclasses; if you use
@@ -4770,8 +4914,8 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 # Related options:
 #
 # * If this option is set to True, then the filters specified in the
-#   'baremetal_scheduler_enabled_filters' are used instead of the filters
-#   specified in 'scheduler_enabled_filters'.
+#   'baremetal_enabled_filters' are used instead of the filters
+#   specified in 'enabled_filters'.
 #  (boolean value)
 # Deprecated group/name - [DEFAULT]/scheduler_use_baremetal_filters
 # This option is deprecated for removal.
@@ -4879,7 +5023,7 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 # instance. The ``NUMATopologyFilter`` filter must be enabled for this to have
 # any significance. For more information, refer to the filter documentation:
 #
-#     https://docs.openstack.org/developer/nova/filter_scheduler.html
+#     https://docs.openstack.org/nova/latest/user/filter-scheduler.html
 #
 # Possible values:
 #
@@ -4911,6 +5055,20 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 #   weigher.
 #  (floating point value)
 #soft_anti_affinity_weight_multiplier = 1.0
+
+#
+# Enable spreading the instances between hosts with the same best weight.
+#
+# Enabling it is beneficial for cases when host_subset_size is 1
+# (default), but there is a large number of hosts with same maximal weight.
+# This scenario is common in Ironic deployments where there are typically many
+# baremetal nodes with identical weights returned to the scheduler.
+# In such case enabling this option will reduce contention and chances for
+# rescheduling events.
+# At the same time it will make the instance packing (even in unweighed case)
+# less dense.
+#  (boolean value)
+#shuffle_best_same_weighed_hosts = false
 
 #
 # List of UUIDs for images that can only be run on certain hosts.
@@ -5036,6 +5194,10 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 #
 # https is used for ssl-based glance api servers.
 #
+# NOTE: The preferred mechanism for endpoint discovery is via keystoneauth1
+# loading options. Only use api_servers if you need multiple endpoints and are
+# unable to use a load balancer for some reason.
+#
 # Possible values:
 #
 # * A list of any fully qualified url of the form
@@ -5053,7 +5215,7 @@ api_servers = http://{{ api_host }}:9292
 # Minimum value: 0
 #num_retries = 0
 
-#
+# DEPRECATED:
 # List of url schemes that can be directly accessed.
 #
 # This option specifies a list of url schemes that can be downloaded
@@ -5066,6 +5228,13 @@ api_servers = http://{{ api_host }}:9292
 #
 # * [file], Empty list (default)
 #  (list value)
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# This was originally added for the 'nova.image.download.file' FileTransfer
+# extension which was removed in the 16.0.0 Pike release. The
+# 'nova.image.download.modules' extension point is not maintained
+# and there is no indication of its use in production clouds.
 #allowed_direct_url_schemes =
 
 #
@@ -5151,6 +5320,24 @@ api_servers = http://{{ api_host }}:9292
 # Timeout value for http requests (integer value)
 #timeout = <None>
 
+# The default service_type for endpoint URL discovery. (string value)
+#service_type = image
+
+# The default service_name for endpoint URL discovery. (string value)
+#service_name = <None>
+
+# List of interfaces, in order of preference, for endpoint URL. (list value)
+#valid_interfaces = internal,public
+
+# The default region_name for endpoint URL discovery. (string value)
+#region_name = <None>
+
+# Always use this endpoint URL for requests for this client. NOTE: The
+# unversioned endpoint should be specified here; to request a particular API
+# version, use the `version`, `min-version`, and/or `max-version` options.
+# (string value)
+#endpoint_override = <None>
+
 
 [guestfs]
 #
@@ -5167,7 +5354,7 @@ api_servers = http://{{ api_host }}:9292
 #
 # Enable/disables guestfs logging.
 #
-# This configures guestfs to debug messages and push them to Openstack
+# This configures guestfs to debug messages and push them to OpenStack
 # logging system. When set to True, it traces libguestfs API calls and
 # enable verbose debug messages. In order to use the above feature,
 # "libguestfs" package must be installed.
@@ -5240,7 +5427,7 @@ api_servers = http://{{ api_host }}:9292
 # Enable instance metrics collection
 #
 # Enables metrics collections for an instance by using Hyper-V's
-# metric APIs. Collected data can by retrieved by other apps and
+# metric APIs. Collected data can be retrieved by other apps and
 # services, e.g.: Ceilometer.
 #  (boolean value)
 #enable_instance_metrics_collection = false
@@ -5546,7 +5733,13 @@ api_servers = http://{{ api_host }}:9292
 # From nova.conf
 #
 
-# URL override for the Ironic API endpoint. (uri value)
+# DEPRECATED: URL override for the Ironic API endpoint. (uri value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Endpoint lookup uses the service catalog via common keystoneauth1
+# Adapter configuration options. In the current release, api_endpoint will
+# override this behavior, but will be ignored and/or removed in a future
+# release. To achieve the same result, use the endpoint_override option instead.
 #api_endpoint = http://ironic.example.org:6385/
 
 #
@@ -5601,6 +5794,9 @@ api_servers = http://{{ api_host }}:9292
 # Authentication URL (string value)
 #auth_url = <None>
 
+# Scope for system operations (string value)
+#system_scope = <None>
+
 # Domain ID to scope to (string value)
 #domain_id = <None>
 
@@ -5638,6 +5834,25 @@ api_servers = http://{{ api_host }}:9292
 # User's password (string value)
 #password = <None>
 
+# The default service_type for endpoint URL discovery. (string value)
+#service_type = baremetal
+
+# The default service_name for endpoint URL discovery. (string value)
+#service_name = <None>
+
+# List of interfaces, in order of preference, for endpoint URL. (list value)
+#valid_interfaces = internal,public
+
+# The default region_name for endpoint URL discovery. (string value)
+#region_name = <None>
+
+# Always use this endpoint URL for requests for this client. NOTE: The
+# unversioned endpoint should be specified here; to request a particular API
+# version, use the `version`, `min-version`, and/or `max-version` options.
+# (string value)
+# Deprecated group/name - [ironic]/api_endpoint
+#endpoint_override = <None>
+
 
 [key_manager]
 
@@ -5654,8 +5869,11 @@ api_servers = http://{{ api_host }}:9292
 #  (string value)
 #fixed_key = <None>
 
-# The full class name of the key manager API class (string value)
-#api_class = castellan.key_manager.barbican_key_manager.BarbicanKeyManager
+# Specify the key manager implementation. Options are "barbican" and "vault".
+# Default is  "barbican". Will support the  values earlier set using
+# [key_manager]/api_class for some time. (string value)
+# Deprecated group/name - [key_manager]/api_class
+#backend = barbican
 
 # The type of authentication credential to create. Possible values are 'token',
 # 'password', 'keystone_token', and 'keystone_password'. Required if no context
@@ -5673,6 +5891,9 @@ api_servers = http://{{ api_host }}:9292
 # Password for authentication. Required for 'password' and 'keystone_password'
 # auth_type. (string value)
 #password = <None>
+
+# Use this endpoint to connect to Keystone. (string value)
+#auth_url = <None>
 
 # User ID for authentication. Optional for 'keystone_token' and
 # 'keystone_password' auth_type. (string value)
@@ -5719,6 +5940,48 @@ api_servers = http://{{ api_host }}:9292
 #reauthenticate = true
 
 
+[keystone]
+# Configuration options for the identity service
+
+#
+# From nova.conf
+#
+
+# PEM encoded Certificate Authority to use when verifying HTTPs connections.
+# (string value)
+#cafile = <None>
+
+# PEM encoded client certificate cert file (string value)
+#certfile = <None>
+
+# PEM encoded client certificate key file (string value)
+#keyfile = <None>
+
+# Verify HTTPS connections. (boolean value)
+#insecure = false
+
+# Timeout value for http requests (integer value)
+#timeout = <None>
+
+# The default service_type for endpoint URL discovery. (string value)
+#service_type = identity
+
+# The default service_name for endpoint URL discovery. (string value)
+#service_name = <None>
+
+# List of interfaces, in order of preference, for endpoint URL. (list value)
+#valid_interfaces = internal,public
+
+# The default region_name for endpoint URL discovery. (string value)
+#region_name = <None>
+
+# Always use this endpoint URL for requests for this client. NOTE: The
+# unversioned endpoint should be specified here; to request a particular API
+# version, use the `version`, `min-version`, and/or `max-version` options.
+# (string value)
+#endpoint_override = <None>
+
+
 [keystone_authtoken]
 
 #
@@ -5732,6 +5995,22 @@ api_servers = http://{{ api_host }}:9292
 # you're using a versioned v2 endpoint here, then this should *not* be the same
 # endpoint the service user utilizes for validating tokens, because normal end
 # users may not be able to reach that endpoint. (string value)
+# Deprecated group/name - [keystone_authtoken]/auth_uri
+#www_authenticate_uri = <None>
+
+# DEPRECATED: Complete "public" Identity API endpoint. This endpoint should not
+# be an "admin" endpoint, as it should be accessible by all end users.
+# Unauthenticated clients are redirected to this endpoint to authenticate.
+# Although this endpoint should ideally be unversioned, client support in the
+# wild varies. If you're using a versioned v2 endpoint here, then this should
+# *not* be the same endpoint the service user utilizes for validating tokens,
+# because normal end users may not be able to reach that endpoint. This option
+# is deprecated in favor of www_authenticate_uri and will be removed in the S
+# release. (string value)
+# This option is deprecated for removal since Queens.
+# Its value may be silently ignored in the future.
+# Reason: The auth_uri option is deprecated in favor of www_authenticate_uri and
+# will be removed in the S  release.
 #auth_uri = <None>
 
 # API version of the admin Identity API endpoint. (string value)
@@ -5804,7 +6083,10 @@ api_servers = http://{{ api_host }}:9292
 # in the cache. If ENCRYPT, token data is encrypted and authenticated in the
 # cache. If the value is not one of these options or empty, auth_token will
 # raise an exception on initialization. (string value)
-# Allowed values: None, MAC, ENCRYPT
+# Possible values:
+# None - <No description provided>
+# MAC - <No description provided>
+# ENCRYPT - <No description provided>
 #memcache_security_strategy = None
 
 # (Optional, mandatory if memcache_security_strategy is defined) This string is
@@ -5898,7 +6180,9 @@ api_servers = http://{{ api_host }}:9292
 
 # Protocol of the admin Identity API endpoint. Deprecated, use identity_uri.
 # (string value)
-# Allowed values: http, https
+# Possible values:
+# http - <No description provided>
+# https - <No description provided>
 #auth_protocol = https
 
 # Complete admin Identity API endpoint. This should specify the unversioned root
@@ -6034,7 +6318,13 @@ password = {{ NOVA_PASS }}
 # * ``cpu_mode``: depends on this
 # * ``cpu_model``: depends on this
 #  (string value)
-# Allowed values: kvm, lxc, qemu, uml, xen, parallels
+# Possible values:
+# kvm - <No description provided>
+# lxc - <No description provided>
+# qemu - <No description provided>
+# uml - <No description provided>
+# xen - <No description provided>
+# parallels - <No description provided>
 #virt_type = kvm
 
 #
@@ -6376,7 +6666,11 @@ password = {{ NOVA_PASS }}
 # * ``vdi``: VirtualBox default disk format
 # * If not set, defaults to same type as source image.
 #  (string value)
-# Allowed values: raw, qcow2, vmdk, vdi
+# Possible values:
+# raw - <No description provided>
+# qcow2 - <No description provided>
+# vmdk - <No description provided>
+# vdi - <No description provided>
 #snapshot_image_format = <None>
 
 #
@@ -6411,18 +6705,26 @@ password = {{ NOVA_PASS }}
 #
 # Possible values:
 #
-# * ``host-model``: Clones the host CPU feature flags.
-# * ``host-passthrough``: Use the host CPU model exactly;
-# * ``custom``: Use a named CPU model;
-# * ``none``: Not set any CPU model.
+# * ``host-model``: Clones the host CPU feature flags
+# * ``host-passthrough``: Use the host CPU model exactly
+# * ``custom``: Use a named CPU model
+# * ``none``: Don't set a specific CPU model. For instances with
+# ``virt_type`` as KVM/QEMU, the default CPU model from QEMU will be used,
+# which provides a basic set of CPU features that are compatible with most
+# hosts.
 #
 # Related options:
 #
-# * ``cpu_model``: If ``custom`` is used for ``cpu_mode``, set this config
-#   option too, otherwise this would result in an error and the instance won't
-#   be launched.
+# * ``cpu_model``: This should be set ONLY when ``cpu_mode`` is set to
+# ``custom``. Otherwise, it would result in an error and the instance
+# launch will fail.
+#
 #  (string value)
-# Allowed values: host-model, host-passthrough, custom, none
+# Possible values:
+# host-model - <No description provided>
+# host-passthrough - <No description provided>
+# custom - <No description provided>
+# none - <No description provided>
 #cpu_mode = <None>
 
 #
@@ -6430,12 +6732,14 @@ password = {{ NOVA_PASS }}
 #
 # Possible values:
 #
-# * The names listed in /usr/share/libvirt/cpu_map.xml
+# * The named CPU models listed in ``/usr/share/libvirt/cpu_map.xml``
 #
 # Related options:
 #
-# * ``cpu_mode``: Don't set this when ``cpu_mode`` is NOT set to ``custom``.
-#   This would result in an error and the instance won't be launched.
+# * ``cpu_mode``: This should be set to ``custom`` ONLY when you want to
+# configure (via ``cpu_model``) a specific named CPU model.  Otherwise, it
+# would result in an error and the instance launch will fail.
+#
 # * ``virt_type``: Only the virtualization types ``kvm`` and ``qemu`` use this.
 #  (string value)
 #cpu_model = <None>
@@ -6473,7 +6777,9 @@ password = {{ NOVA_PASS }}
 #   barriers), then data integrity can be ensured. However, because the host
 #   page cache is disabled, the read performance in the guest would not be as
 #   good as in the modes where the host page cache is enabled, such as
-#   writethrough mode.
+#   writethrough mode. Shareable disk devices, like for a multi-attachable block
+#   storage volume, will have their cache mode set to 'none' regardless of
+#   configuration.
 # * writethrough: writethrough mode is the default caching mode. With
 #   caching set to writethrough mode, the host page cache is enabled, but the
 #   disk write cache is disabled for the guest. Consequently, this caching mode
@@ -6511,7 +6817,11 @@ password = {{ NOVA_PASS }}
 
 # The data source used to the populate the host "serial" UUID exposed to guest
 # in the virtual BIOS. (string value)
-# Allowed values: none, os, hardware, auto
+# Possible values:
+# none - <No description provided>
+# os - <No description provided>
+# hardware - <No description provided>
+# auto - <No description provided>
 #sysinfo_serial = auto
 
 # A number of seconds to memory usage statistics period. Zero or negative value
@@ -6556,7 +6866,14 @@ password = {{ NOVA_PASS }}
 # * virt.use_cow_images
 # * images_volume_group
 #  (string value)
-# Allowed values: raw, flat, qcow2, lvm, rbd, ploop, default
+# Possible values:
+# raw - <No description provided>
+# flat - <No description provided>
+# qcow2 - <No description provided>
+# lvm - <No description provided>
+# rbd - <No description provided>
+# ploop - <No description provided>
+# default - <No description provided>
 #images_type = default
 
 #
@@ -6588,7 +6905,9 @@ password = {{ NOVA_PASS }}
 # * Qemu >= 1.5 (raw format)
 # * Qemu >= 1.6 (qcow2 format)
 #  (string value)
-# Allowed values: ignore, unmap
+# Possible values:
+# ignore - <No description provided>
+# unmap - <No description provided>
 #hw_disk_discard = <None>
 
 # DEPRECATED: Allows image information files to be stored in non-standard
@@ -6631,7 +6950,10 @@ password = {{ NOVA_PASS }}
 # * images_type - must be set to ``lvm``
 # * volume_clear_size
 #  (string value)
-# Allowed values: none, zero, shred
+# Possible values:
+# none - <No description provided>
+# zero - <No description provided>
+# shred - <No description provided>
 #volume_clear = zero
 
 #
@@ -6767,7 +7089,7 @@ password = {{ NOVA_PASS }}
 # Directory where the Quobyte volume is mounted on the compute node.
 #
 # Nova supports Quobyte volume driver that enables storing Block Storage
-# service volumes on a Quobyte storage back end. This Option sepcifies the
+# service volumes on a Quobyte storage back end. This Option specifies the
 # path of the directory where Quobyte volume is mounted.
 #
 # Possible values:
@@ -6788,7 +7110,7 @@ password = {{ NOVA_PASS }}
 # Mount options passed to the SMBFS client.
 #
 # Provide SMBFS options as a single string containing all parameters.
-# See mount.cifs man page for  details. Note that the libvirt-qemu ``uid``
+# See mount.cifs man page for details. Note that the libvirt-qemu ``uid``
 # and ``gid`` must be specified.
 #  (string value)
 #smbfs_mount_options =
@@ -6804,7 +7126,9 @@ password = {{ NOVA_PASS }}
 # * removing file from remote host
 # * copying file to remote host
 #  (string value)
-# Allowed values: ssh, rsync
+# Possible values:
+# ssh - <No description provided>
+# rsync - <No description provided>
 #remote_filesystem_transport = ssh
 
 #
@@ -7119,7 +7443,7 @@ password = {{ NOVA_PASS }}
 # From nova.conf
 #
 
-#
+# DEPRECATED:
 # This option specifies the URL for connecting to Neutron.
 #
 # Possible values:
@@ -7128,19 +7452,13 @@ password = {{ NOVA_PASS }}
 #   This typically matches the URL returned for the 'network' service type
 #   from the Keystone service catalog.
 #  (uri value)
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason: Endpoint lookup uses the service catalog via common keystoneauth1
+# Adapter configuration options. In the current release, "url" will override
+# this behavior, but will be ignored and/or removed in a future release. To
+# achieve the same result, use the endpoint_override option instead.
 #url = http://127.0.0.1:9696
-
-#
-# Region name for connecting to Neutron in admin context.
-#
-# This option is used in multi-region setups. If there are two Neutron
-# servers running in two regions in two different machines, then two
-# services need to be created in Keystone with two different regions and
-# associate corresponding endpoints to those services. When requests are made
-# to Keystone, the Keystone service uses the region_name to determine the
-# region the request is coming from.
-#  (string value)
-#region_name = RegionOne
 
 #
 # Default name for the Open vSwitch integration bridge.
@@ -7218,6 +7536,9 @@ password = {{ NOVA_PASS }}
 # Authentication URL (string value)
 #auth_url = <None>
 
+# Scope for system operations (string value)
+#system_scope = <None>
+
 # Domain ID to scope to (string value)
 #domain_id = <None>
 
@@ -7271,6 +7592,24 @@ password = {{ NOVA_PASS }}
 # Tenant Name (string value)
 #tenant_name = <None>
 
+# The default service_type for endpoint URL discovery. (string value)
+#service_type = network
+
+# The default service_name for endpoint URL discovery. (string value)
+#service_name = <None>
+
+# List of interfaces, in order of preference, for endpoint URL. (list value)
+#valid_interfaces = internal,public
+
+# The default region_name for endpoint URL discovery. (string value)
+#region_name = <None>
+
+# Always use this endpoint URL for requests for this client. NOTE: The
+# unversioned endpoint should be specified here; to request a particular API
+# version, use the `version`, `min-version`, and/or `max-version` options.
+# (string value)
+#endpoint_override = <None>
+
 url = http://{{ api_host }}:9696
 auth_url = http://{{ api_host }}:35357
 auth_type = password
@@ -7286,55 +7625,68 @@ password = {{ NEUTRON_PASS }}
 #
 # Most of the actions in Nova which manipulate the system state generate
 # notifications which are posted to the messaging component (e.g. RabbitMQ) and
-# can be consumed by any service outside the Openstack. More technical details
-# at http://docs.openstack.org/developer/nova/notifications.html
+# can be consumed by any service outside the OpenStack. More technical details
+# at https://docs.openstack.org/nova/latest/reference/notifications.html
 
 #
 # From nova.conf
 #
 
 #
-# If set, send compute.instance.update notifications on instance state
-# changes.
+# If set, send compute.instance.update notifications on
+# instance state changes.
 #
-# Please refer to https://wiki.openstack.org/wiki/SystemUsageData for
+# Please refer to
+# https://docs.openstack.org/nova/latest/reference/notifications.html for
 # additional information on notifications.
 #
 # Possible values:
 #
 # * None - no notifications
-# * "vm_state" - notifications on VM state changes
-# * "vm_and_task_state" - notifications on VM and task state changes
+# * "vm_state" - notifications are sent with VM state transition information in
+#   the ``old_state`` and ``state`` fields. The ``old_task_state`` and
+#   ``new_task_state`` fields will be set to the current task_state of the
+#   instance.
+# * "vm_and_task_state" - notifications are sent with VM and task state
+#   transition information.
 #  (string value)
-# Allowed values: <None>, vm_state, vm_and_task_state
+# Possible values:
+# <None> - <No description provided>
+# vm_state - <No description provided>
+# vm_and_task_state - <No description provided>
 #notify_on_state_change = <None>
 
-#
-# If enabled, send api.fault notifications on caught exceptions in the
-# API service.
-#  (boolean value)
-# Deprecated group/name - [DEFAULT]/notify_api_faults
-#notify_on_api_faults = false
-
 # Default notification level for outgoing notifications. (string value)
-# Allowed values: DEBUG, INFO, WARN, ERROR, CRITICAL
+# Possible values:
+# DEBUG - <No description provided>
+# INFO - <No description provided>
+# WARN - <No description provided>
+# ERROR - <No description provided>
+# CRITICAL - <No description provided>
 # Deprecated group/name - [DEFAULT]/default_notification_level
 #default_level = INFO
 
-#
+# DEPRECATED:
 # Default publisher_id for outgoing notifications. If you consider routing
 # notifications using different publisher, change this value accordingly.
 #
 # Possible values:
 #
-# * Defaults to the IPv4 address of this host, but it can be any valid
+# * Defaults to the current hostname of this host, but it can be any valid
 #   oslo.messaging publisher_id
 #
 # Related options:
 #
-# *  my_ip - IP address of this host
+# *  host - Hostname, FQDN or IP address of this host.
 #  (string value)
-#default_publisher_id = $my_ip
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason:
+# This option is only used when ``monkey_patch=True`` and
+# ``monkey_patch_modules`` is configured to specify the legacy notify_decorator.
+# Since the monkey_patch and monkey_patch_modules options are deprecated, this
+# option is also deprecated.
+#default_publisher_id = $host
 
 #
 # Specifies which notification format shall be used by nova.
@@ -7351,9 +7703,12 @@ password = {{ NEUTRON_PASS }}
 #   emitted. (Default)
 #
 # The list of versioned notifications is visible in
-# http://docs.openstack.org/developer/nova/notifications.html
+# https://docs.openstack.org/nova/latest/reference/notifications.html
 #  (string value)
-# Allowed values: unversioned, versioned, both
+# Possible values:
+# unversioned - <No description provided>
+# versioned - <No description provided>
+# both - <No description provided>
 #notification_format = both
 
 #
@@ -7366,7 +7721,7 @@ password = {{ NEUTRON_PASS }}
 # topic queue in this list.
 #
 # The list of versioned notifications is visible in
-# http://docs.openstack.org/developer/nova/notifications.html
+# https://docs.openstack.org/nova/latest/reference/notifications.html
 #  (list value)
 #versioned_notifications_topics = versioned_notifications
 
@@ -7455,6 +7810,14 @@ lock_path = /var/lib/nova/tmp
 # Password for decrypting ssl_key_file (if encrypted) (string value)
 #ssl_key_password = <None>
 
+# By default SSL checks that the name in the server's certificate matches the
+# hostname in the transport_url. In some configurations it may be preferable to
+# use the virtual hostname instead, for example if the server uses the Server
+# Name Indication TLS extension (rfc6066) to provide a certificate per virtual
+# host. Set ssl_verify_vhost to True if the server's SSL certificate uses the
+# virtual host name instead of the DNS name. (boolean value)
+#ssl_verify_vhost = false
+
 # DEPRECATED: Accept clients using either SSL or plain TCP (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -7535,6 +7898,14 @@ lock_path = /var/lib/nova/tmp
 # 'dynamic'  - use legacy addresses if the message bus does not support routing
 # otherwise use routable addressing (string value)
 #addressing_mode = dynamic
+
+# Enable virtual host support for those message buses that do not natively
+# support virtual hosting (such as qpidd). When set to true the virtual host
+# name will be added to all message bus addresses, effectively creating a
+# private 'subnet' per virtual host. Set to False if the message bus supports
+# virtual hosting using the 'hostname' field in the AMQP 1.0 Open performative
+# as the name of the virtual host. (boolean value)
+#pseudo_vhost = true
 
 # address prefix used when sending to a specific server (string value)
 #server_request_prefix = exclusive
@@ -7633,13 +8004,24 @@ lock_path = /var/lib/nova/tmp
 # Default timeout(s) for Kafka consumers (floating point value)
 #kafka_consumer_timeout = 1.0
 
-# Pool Size for Kafka Consumers (integer value)
+# DEPRECATED: Pool Size for Kafka Consumers (integer value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #pool_size = 10
 
-# The pool size limit for connections expiration policy (integer value)
+# DEPRECATED: The pool size limit for connections expiration policy (integer
+# value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #conn_pool_min_size = 2
 
-# The time-to-live in sec of idle connections in the pool (integer value)
+# DEPRECATED: The time-to-live in sec of idle connections in the pool (integer
+# value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Driver no longer uses connection pool.
 #conn_pool_ttl = 1200
 
 # Group id for Kafka consumer. Consumers in one group will coordinate message
@@ -7732,7 +8114,9 @@ lock_path = /var/lib/nova/tmp
 # Determines how the next RabbitMQ node is chosen in case the one we are
 # currently connected to becomes unavailable. Takes effect only if more than one
 # RabbitMQ node is provided in config. (string value)
-# Allowed values: round-robin, shuffle
+# Possible values:
+# round-robin - <No description provided>
+# shuffle - <No description provided>
 #kombu_failover_strategy = round-robin
 
 # DEPRECATED: The RabbitMQ broker address where a single node is used. (string
@@ -7769,7 +8153,10 @@ lock_path = /var/lib/nova/tmp
 #rabbit_password = guest
 
 # The RabbitMQ login method. (string value)
-# Allowed values: PLAIN, AMQPLAIN, RABBIT-CR-DEMO
+# Possible values:
+# PLAIN - <No description provided>
+# AMQPLAIN - <No description provided>
+# RABBIT-CR-DEMO - <No description provided>
 #rabbit_login_method = AMQPLAIN
 
 # DEPRECATED: The RabbitMQ virtual host. (string value)
@@ -7848,7 +8235,10 @@ lock_path = /var/lib/nova/tmp
 #host_connection_reconnect_delay = 0.25
 
 # Connection factory implementation (string value)
-# Allowed values: new, single, read_write
+# Possible values:
+# new - <No description provided>
+# single - <No description provided>
+# read_write - <No description provided>
 #connection_factory = single
 
 # Maximum number of connections to keep queued. (integer value)
@@ -7872,7 +8262,9 @@ lock_path = /var/lib/nova/tmp
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #default_serializer_type = json
 
 # Persist notification messages. (boolean value)
@@ -7939,7 +8331,10 @@ lock_path = /var/lib/nova/tmp
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, sentinel, dummy
+# Possible values:
+# redis - <No description provided>
+# sentinel - <No description provided>
+# dummy - <No description provided>
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
@@ -8008,7 +8403,9 @@ lock_path = /var/lib/nova/tmp
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
-# Allowed values: json, msgpack
+# Possible values:
+# json - <No description provided>
+# msgpack - <No description provided>
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -8102,6 +8499,14 @@ lock_path = /var/lib/nova/tmp
 # From oslo.policy
 #
 
+# This option controls whether or not to enforce scope when evaluating policies.
+# If ``True``, the scope of the token used in the request is compared to the
+# ``scope_types`` of the policy being enforced. If the scopes do not match, an
+# ``InvalidScope`` exception will be raised. If ``False``, a message will be
+# logged informing operators that policies are being invoked with mismatching
+# scope. (boolean value)
+#enforce_scope = false
+
 # The file that defines policies. (string value)
 #policy_file = policy.json
 
@@ -8115,6 +8520,25 @@ lock_path = /var/lib/nova/tmp
 # valued)
 #policy_dirs = policy.d
 
+# Content Type to send and receive data for REST based policy check (string
+# value)
+# Possible values:
+# application/x-www-form-urlencoded - <No description provided>
+# application/json - <No description provided>
+#remote_content_type = application/x-www-form-urlencoded
+
+# server identity verification for REST based policy check (boolean value)
+#remote_ssl_verify_server_crt = false
+
+# Absolute path to ca cert file for REST based policy check (string value)
+#remote_ssl_ca_crt_file = <None>
+
+# Absolute path to client cert for REST based policy check (string value)
+#remote_ssl_client_crt_file = <None>
+
+# Absolute path client key file REST based policy check (string value)
+#remote_ssl_client_key_file = <None>
+
 
 [pci]
 
@@ -8125,28 +8549,41 @@ lock_path = /var/lib/nova/tmp
 #
 # An alias for a PCI passthrough device requirement.
 #
-# This allows users to specify the alias in the extra_spec for a flavor, without
+# This allows users to specify the alias in the extra specs for a flavor,
+# without
 # needing to repeat all the PCI property requirements.
 #
 # Possible Values:
 #
-# * A list of JSON values which describe the aliases. For example:
+# * A list of JSON values which describe the aliases. For example::
 #
 #     alias = {
 #       "name": "QuickAssist",
 #       "product_id": "0443",
 #       "vendor_id": "8086",
-#       "device_type": "type-PCI"
+#       "device_type": "type-PCI",
+#       "numa_policy": "required"
 #     }
 #
-#   defines an alias for the Intel QuickAssist card. (multi valued). Valid key
-#   values are :
+#   This defines an alias for the Intel QuickAssist card. (multi valued). Valid
+#   key values are :
 #
-#   * "name": Name of the PCI alias.
-#   * "product_id": Product ID of the device in hexadecimal.
-#   * "vendor_id": Vendor ID of the device in hexadecimal.
-#   * "device_type": Type of PCI device. Valid values are: "type-PCI",
-#     "type-PF" and "type-VF".
+#   ``name``
+#     Name of the PCI alias.
+#
+#   ``product_id``
+#     Product ID of the device in hexadecimal.
+#
+#   ``vendor_id``
+#     Vendor ID of the device in hexadecimal.
+#
+#   ``device_type``
+#     Type of PCI device. Valid values are: ``type-PCI``, ``type-PF`` and
+#     ``type-VF``.
+#
+#   ``numa_policy``
+#     Required NUMA affinity of device. Valid values are: ``legacy``,
+#     ``preferred`` and ``required``.
 #  (multi valued)
 # Deprecated group/name - [DEFAULT]/pci_alias
 #alias =
@@ -8223,7 +8660,7 @@ lock_path = /var/lib/nova/tmp
 # From nova.conf
 #
 
-#
+# DEPRECATED:
 # Region name of this node. This is used when picking the URL in the service
 # catalog.
 #
@@ -8231,13 +8668,31 @@ lock_path = /var/lib/nova/tmp
 #
 # * Any string representing region name
 #  (string value)
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason: Endpoint lookup uses the service catalog via common keystoneauth1
+# Adapter configuration options.  Use the region_name option instead.
 #os_region_name = <None>
 
-#
+# DEPRECATED:
 # Endpoint interface for this node. This is used when picking the URL in the
 # service catalog.
 #  (string value)
+# This option is deprecated for removal since 17.0.0.
+# Its value may be silently ignored in the future.
+# Reason: Endpoint lookup uses the service catalog via common keystoneauth1
+# Adapter configuration options.  Use the valid_interfaces option instead.
 #os_interface = <None>
+
+#
+# If True, when limiting allocation candidate results, the results will be
+# a random sampling of the full result set. If False, allocation candidates
+# are returned in a deterministic but undefined order. That is, all things
+# being equal, two requests for allocation candidates will return the same
+# results in the same order; but no guarantees are made as to how that order
+# is determined.
+#  (boolean value)
+#randomize_allocation_candidates = false
 
 # PEM encoded Certificate Authority to use when verifying HTTPs connections.
 # (string value)
@@ -8264,6 +8719,9 @@ lock_path = /var/lib/nova/tmp
 
 # Authentication URL (string value)
 #auth_url = <None>
+
+# Scope for system operations (string value)
+#system_scope = <None>
 
 # Domain ID to scope to (string value)
 #domain_id = <None>
@@ -8317,6 +8775,26 @@ lock_path = /var/lib/nova/tmp
 
 # Tenant Name (string value)
 #tenant_name = <None>
+
+# The default service_type for endpoint URL discovery. (string value)
+#service_type = placement
+
+# The default service_name for endpoint URL discovery. (string value)
+#service_name = <None>
+
+# List of interfaces, in order of preference, for endpoint URL. (list value)
+# Deprecated group/name - [placement]/os_interface
+#valid_interfaces = internal,public
+
+# The default region_name for endpoint URL discovery. (string value)
+# Deprecated group/name - [placement]/os_region_name
+#region_name = <None>
+
+# Always use this endpoint URL for requests for this client. NOTE: The
+# unversioned endpoint should be specified here; to request a particular API
+# version, use the `version`, `min-version`, and/or `max-version` options.
+# (string value)
+#endpoint_override = <None>
 
 os_region_name = RegionOne
 project_domain_name = Default
@@ -8750,8 +9228,13 @@ password = {{ PLACEMENT_PASS }}
 # The host manager manages the in-memory picture of the hosts that the scheduler
 # uses. The options values are chosen from the entry points under the namespace
 # 'nova.scheduler.host_manager' in 'setup.cfg'.
+#
+# NOTE: The "ironic_host_manager" option is deprecated as of the 17.0.0 Queens
+# release.
 #  (string value)
-# Allowed values: host_manager, ironic_host_manager
+# Possible values:
+# host_manager - <No description provided>
+# ironic_host_manager - <No description provided>
 # Deprecated group/name - [DEFAULT]/scheduler_host_manager
 #host_manager = host_manager
 
@@ -8812,19 +9295,15 @@ password = {{ PLACEMENT_PASS }}
 #periodic_task_interval = 60
 
 #
-# Maximum number of schedule attempts for a chosen host.
-#
-# This is the maximum number of attempts that will be made to schedule an
-# instance before it is assumed that the failures aren't due to normal
-# occasional
-# race conflicts, but rather some other problem. When this is reached a
-# MaxRetriesExceeded exception is raised, and the instance is set to an error
-# state.
+# This is the maximum number of attempts that will be made for a given instance
+# build/move operation. It limits the number of alternate hosts returned by the
+# scheduler. When that list of hosts is exhausted, a MaxRetriesExceeded
+# exception is raised and the instance is set to an error state.
 #
 # Possible values:
 #
 # * A positive integer, where the integer corresponds to the max number of
-#   attempts that can be made when scheduling an instance.
+#   attempts that can be made when building or moving an instance.
 #          (integer value)
 # Minimum value: 1
 # Deprecated group/name - [DEFAULT]/scheduler_max_attempts
@@ -8845,6 +9324,25 @@ password = {{ PLACEMENT_PASS }}
 #  (integer value)
 # Minimum value: -1
 #discover_hosts_in_cells_interval = -1
+
+#
+# This setting determines the maximum limit on results received from the
+# placement service during a scheduling operation. It effectively limits
+# the number of hosts that may be considered for scheduling requests that
+# match a large number of candidates.
+#
+# A value of 1 (the minimum) will effectively defer scheduling to the placement
+# service strictly on "will it fit" grounds. A higher value will put an upper
+# cap on the number of results the scheduler will consider during the filtering
+# and weighing process. Large deployments may need to set this lower than the
+# total number of hosts available to limit memory consumption, network traffic,
+# etc. of the scheduler.
+#
+# This option is only used by the FilterScheduler; if you use a different
+# scheduler, this option has no effect.
+#  (integer value)
+# Minimum value: 1
+#max_placement_results = 1000
 
 
 [serial_console]
@@ -8941,27 +9439,27 @@ password = {{ PLACEMENT_PASS }}
 [service_user]
 #
 # Configuration options for service to service authentication using a service
-# token. These options allow to send a service token along with the
-# user's token when contacting external REST APIs.
+# token. These options allow sending a service token along with the user's token
+# when contacting external REST APIs.
 
 #
 # From nova.conf
 #
 
 #
-# When True, if sending a user token to an REST API, also send a service token.
+# When True, if sending a user token to a REST API, also send a service token.
 #
 # Nova often reuses the user token provided to the nova-api to talk to other
-# REST APIs, such as Cinder, Glance and Neutron. It is possible that while the
-# user token was valid when the request was made to Nova, the token may expire
-# before it reaches the other service. To avoid any failures, and to
-# make it clear it is Nova calling the service on the users behalf, we include
-# a server token along with the user token. Should the user's token have
-# expired, a valid service token ensures the REST API request will still be
-# accepted by the keystone middleware.
-#
-# This feature is currently experimental, and as such is turned off by default
-# while full testing and performance tuning of this feature is completed.
+# REST
+# APIs, such as Cinder, Glance and Neutron. It is possible that while the user
+# token was valid when the request was made to Nova, the token may expire before
+# it reaches the other service. To avoid any failures, and to make it clear it
+# is
+# Nova calling the service on the user's behalf, we include a service token
+# along
+# with the user token. Should the user's token have expired, a valid service
+# token ensures the REST API request will still be accepted by the keystone
+# middleware.
 #  (boolean value)
 #send_service_user_token = false
 
@@ -8990,6 +9488,9 @@ password = {{ PLACEMENT_PASS }}
 
 # Authentication URL (string value)
 #auth_url = <None>
+
+# Scope for system operations (string value)
+#system_scope = <None>
 
 # Domain ID to scope to (string value)
 #domain_id = <None>
@@ -9185,212 +9686,6 @@ password = {{ PLACEMENT_PASS }}
 #html5proxy_port = 6082
 
 
-[trusted_computing]
-#
-# Configuration options for enabling Trusted Platform Module.
-
-#
-# From nova.conf
-#
-
-# DEPRECATED:
-# The host to use as the attestation server.
-#
-# Cloud computing pools can involve thousands of compute nodes located at
-# different geographical locations, making it difficult for cloud providers to
-# identify a node's trustworthiness. When using the Trusted filter, users can
-# request that their VMs only be placed on nodes that have been verified by the
-# attestation server specified in this option.
-#
-# This option is only used by the FilterScheduler and its subclasses; if you use
-# a different scheduler, this option has no effect. Also note that this setting
-# only affects scheduling if the 'TrustedFilter' filter is enabled.
-#
-# Possible values:
-#
-# * A string representing the host name or IP address of the attestation server,
-#   or an empty string.
-#
-# Related options:
-#
-# * attestation_server_ca_file
-# * attestation_port
-# * attestation_api_url
-# * attestation_auth_blob
-# * attestation_auth_timeout
-# * attestation_insecure_ssl
-#  (unknown value)
-# This option is deprecated for removal since Pike.
-# Its value may be silently ignored in the future.
-# Reason: Incomplete filter
-#attestation_server = <None>
-
-# DEPRECATED:
-# The absolute path to the certificate to use for authentication when connecting
-# to the attestation server. See the `attestation_server` help text for more
-# information about host verification.
-#
-# This option is only used by the FilterScheduler and its subclasses; if you use
-# a different scheduler, this option has no effect. Also note that this setting
-# only affects scheduling if the 'TrustedFilter' filter is enabled.
-#
-# Possible values:
-#
-# * A string representing the path to the authentication certificate for the
-#   attestation server, or an empty string.
-#
-# Related options:
-#
-# * attestation_server
-# * attestation_port
-# * attestation_api_url
-# * attestation_auth_blob
-# * attestation_auth_timeout
-# * attestation_insecure_ssl
-#  (string value)
-# This option is deprecated for removal since Pike.
-# Its value may be silently ignored in the future.
-# Reason: Incomplete filter
-#attestation_server_ca_file = <None>
-
-# DEPRECATED:
-# The port to use when connecting to the attestation server. See the
-# `attestation_server` help text for more information about host verification.
-#
-# This option is only used by the FilterScheduler and its subclasses; if you use
-# a different scheduler, this option has no effect. Also note that this setting
-# only affects scheduling if the 'TrustedFilter' filter is enabled.
-#
-# Related options:
-#
-# * attestation_server
-# * attestation_server_ca_file
-# * attestation_api_url
-# * attestation_auth_blob
-# * attestation_auth_timeout
-# * attestation_insecure_ssl
-#  (port value)
-# Minimum value: 0
-# Maximum value: 65535
-# This option is deprecated for removal since Pike.
-# Its value may be silently ignored in the future.
-# Reason: Incomplete filter
-#attestation_port = 8443
-
-# DEPRECATED:
-# The URL on the attestation server to use. See the `attestation_server` help
-# text for more information about host verification.
-#
-# This value must be just that path portion of the full URL, as it will be
-# joined
-# to the host specified in the attestation_server option.
-#
-# This option is only used by the FilterScheduler and its subclasses; if you use
-# a different scheduler, this option has no effect. Also note that this setting
-# only affects scheduling if the 'TrustedFilter' filter is enabled.
-#
-# Possible values:
-#
-# * A valid URL string of the attestation server, or an empty string.
-#
-# Related options:
-#
-# * attestation_server
-# * attestation_server_ca_file
-# * attestation_port
-# * attestation_auth_blob
-# * attestation_auth_timeout
-# * attestation_insecure_ssl
-#  (string value)
-# This option is deprecated for removal since Pike.
-# Its value may be silently ignored in the future.
-# Reason: Incomplete filter
-#attestation_api_url = /OpenAttestationWebServices/V1.0
-
-# DEPRECATED:
-# Attestation servers require a specific blob that is used to authenticate. The
-# content and format of the blob are determined by the particular attestation
-# server being used. There is no default value; you must supply the value as
-# specified by your attestation service. See the `attestation_server` help text
-# for more information about host verification.
-#
-# This option is only used by the FilterScheduler and its subclasses; if you use
-# a different scheduler, this option has no effect. Also note that this setting
-# only affects scheduling if the 'TrustedFilter' filter is enabled.
-#
-# Possible values:
-#
-# * A string containing the specific blob required by the attestation server, or
-#   an empty string.
-#
-# Related options:
-#
-# * attestation_server
-# * attestation_server_ca_file
-# * attestation_port
-# * attestation_api_url
-# * attestation_auth_timeout
-# * attestation_insecure_ssl
-#  (string value)
-# This option is deprecated for removal since Pike.
-# Its value may be silently ignored in the future.
-# Reason: Incomplete filter
-#attestation_auth_blob = <None>
-
-# DEPRECATED:
-# This value controls how long a successful attestation is cached. Once this
-# period has elapsed, a new attestation request will be made. See the
-# `attestation_server` help text for more information about host verification.
-#
-# This option is only used by the FilterScheduler and its subclasses; if you use
-# a different scheduler, this option has no effect. Also note that this setting
-# only affects scheduling if the 'TrustedFilter' filter is enabled.
-#
-# Possible values:
-#
-# * A integer value, corresponding to the timeout interval for attestations in
-#   seconds. Any integer is valid, although setting this to zero or negative
-#   values can greatly impact performance when using an attestation service.
-#
-# Related options:
-#
-# * attestation_server
-# * attestation_server_ca_file
-# * attestation_port
-# * attestation_api_url
-# * attestation_auth_blob
-# * attestation_insecure_ssl
-#  (integer value)
-# Minimum value: 0
-# This option is deprecated for removal since Pike.
-# Its value may be silently ignored in the future.
-# Reason: Incomplete filter
-#attestation_auth_timeout = 60
-
-# DEPRECATED:
-# When set to True, the SSL certificate verification is skipped for the
-# attestation service. See the `attestation_server` help text for more
-# information about host verification.
-#
-# This option is only used by the FilterScheduler and its subclasses; if you use
-# a different scheduler, this option has no effect. Also note that this setting
-# only affects scheduling if the 'TrustedFilter' filter is enabled.
-#
-# Related options:
-#
-# * attestation_server
-# * attestation_server_ca_file
-# * attestation_port
-# * attestation_api_url
-# * attestation_auth_blob
-# * attestation_auth_timeout
-#  (boolean value)
-# This option is deprecated for removal since Pike.
-# Its value may be silently ignored in the future.
-# Reason: Incomplete filter
-#attestation_insecure_ssl = false
-
-
 [upgrade_levels]
 #
 # upgrade_levels options are used to set version cap for RPC
@@ -9465,6 +9760,26 @@ password = {{ PLACEMENT_PASS }}
 #baseapi = <None>
 
 
+[vault]
+
+#
+# From nova.conf
+#
+
+# root token for vault (string value)
+#root_token_id = <None>
+
+# Use this endpoint to connect to Vault, for example: "http://127.0.0.1:8200"
+# (string value)
+#vault_url = http://127.0.0.1:8200
+
+# Absolute path to ca cert file (string value)
+#ssl_ca_crt_file = <None>
+
+# SSL Enabled/Disabled (boolean value)
+#use_ssl = false
+
+
 [vendordata_dynamic_auth]
 #
 # Options within this group control the authentication of the vendordata
@@ -9499,6 +9814,9 @@ password = {{ PLACEMENT_PASS }}
 
 # Authentication URL (string value)
 #auth_url = <None>
+
+# Scope for system operations (string value)
+#system_scope = <None>
 
 # Domain ID to scope to (string value)
 #domain_id = <None>
@@ -9631,6 +9949,13 @@ password = {{ PLACEMENT_PASS }}
 #serial_port_proxy_uri = <None>
 
 #
+# Specifies the directory where the Virtual Serial Port Concentrator is
+# storing console log files. It should match the 'serial_log_dir' config
+# value of VSPC.
+#  (string value)
+#serial_log_dir = /opt/vmware/vspc
+
+#
 # Hostname or IP address for connection to VMware vCenter host. (unknown value)
 #host_ip = <None>
 
@@ -9737,6 +10062,16 @@ password = {{ PLACEMENT_PASS }}
 #use_linked_clone = true
 
 #
+# This option sets the http connection pool size
+#
+# The connection pool size is the maximum number of connections from nova to
+# vSphere.  It should only be increased if there are warnings indicating that
+# the connection pool is full, otherwise, the default should suffice.
+#  (integer value)
+# Minimum value: 10
+#connection_pool_size = 10
+
+#
 # This option enables or disables storage policy based placement
 # of instances.
 #
@@ -9841,6 +10176,8 @@ enabled = true
 # The IP address or hostname on which an instance should listen to for
 # incoming VNC connection requests on this node.
 #  (unknown value)
+# Deprecated group/name - [DEFAULT]/vncserver_listen
+# Deprecated group/name - [vnc]/vncserver_listen
 server_listen = 0.0.0.0
 
 #
@@ -9852,6 +10189,8 @@ server_listen = 0.0.0.0
 # This option sets the private address to which proxy clients, such as
 # ``nova-xvpvncproxy``, should connect to.
 #  (unknown value)
+# Deprecated group/name - [DEFAULT]/vncserver_proxyclient_address
+# Deprecated group/name - [vnc]/vncserver_proxyclient_address
 server_proxyclient_address = $my_ip
 
 #
@@ -9968,6 +10307,63 @@ novncproxy_base_url = http://{{ api_host }}:6080/vnc_auto.html
 # Maximum value: 65535
 #novncproxy_port = 6080
 
+#
+# The authentication schemes to use with the compute node.
+#
+# Control what RFB authentication schemes are permitted for connections between
+# the proxy and the compute host. If multiple schemes are enabled, the first
+# matching scheme will be used, thus the strongest schemes should be listed
+# first.
+#
+# Possible values:
+#
+# * ``none``: allow connection without authentication
+# * ``vencrypt``: use VeNCrypt authentication scheme
+#
+# Related options:
+#
+# * ``[vnc]vencrypt_client_key``, ``[vnc]vencrypt_client_cert``: must also be
+# set
+#  (list value)
+#auth_schemes = none
+
+# The path to the client certificate PEM file (for x509)
+#
+# The fully qualified path to a PEM file containing the private key which the
+# VNC
+# proxy server presents to the compute node during VNC authentication.
+#
+# Related options:
+#
+# * ``vnc.auth_schemes``: must include ``vencrypt``
+# * ``vnc.vencrypt_client_cert``: must also be set
+#  (string value)
+#vencrypt_client_key = <None>
+
+# The path to the client key file (for x509)
+#
+# The fully qualified path to a PEM file containing the x509 certificate which
+# the VNC proxy server presents to the compute node during VNC authentication.
+#
+# Realted options:
+#
+# * ``vnc.auth_schemes``: must include ``vencrypt``
+# * ``vnc.vencrypt_client_key``: must also be set
+#  (string value)
+#vencrypt_client_cert = <None>
+
+# The path to the CA certificate PEM file
+#
+# The fully qualified path to a PEM file containing one or more x509
+# certificates
+# for the certificate authorities used by the compute node VNC server.
+#
+# Related options:
+#
+# * ``vnc.auth_schemes``: must include ``vencrypt``
+#  (string value)
+#vencrypt_ca_certs = <None>
+
 
 [workarounds]
 #
@@ -10023,7 +10419,7 @@ novncproxy_base_url = http://{{ api_host }}:6080/vnc_auto.html
 # * False: Live snapshots are always used when snapshotting (as long as
 #   there is a new enough libvirt and the backend storage supports it)
 #  (boolean value)
-#disable_libvirt_livesnapshot = true
+#disable_libvirt_livesnapshot = false
 
 #
 # Enable handling of events emitted from compute drivers.
@@ -10071,6 +10467,11 @@ novncproxy_base_url = http://{{ api_host }}:6080/vnc_auto.html
 #
 # Operators that desire api/cell isolation over this check should
 # enable this flag, which will avoid making that upcall from compute.
+#
+# Related options:
+#
+# * [filter_scheduler]/track_instance_changes also relies on upcalls from the
+#   compute service to the scheduler service.
 #  (boolean value)
 #disable_group_policy_check_upcall = false
 
@@ -10401,7 +10802,10 @@ novncproxy_base_url = http://{{ api_host }}:6080/vnc_auto.html
 #   image_property `cache_in_nova=True`.
 # * `none`: turns off caching entirely.
 #  (string value)
-# Allowed values: all, some, none
+# Possible values:
+# all - <No description provided>
+# some - <No description provided>
+# none - <No description provided>
 #cache_images = all
 
 #
@@ -10603,27 +11007,6 @@ novncproxy_base_url = http://{{ api_host }}:6080/vnc_auto.html
 # Minimum value: 0
 # Maximum value: 65535
 #target_port = 3260
-
-# DEPRECATED:
-# Used to enable the remapping of VBD dev.
-# (Works around an issue in Ubuntu Maverick)
-#  (boolean value)
-# This option is deprecated for removal since 15.0.0.
-# Its value may be silently ignored in the future.
-# Reason:
-# This option provided a workaround for issues in Ubuntu Maverick, which
-# was released in April 2010 and was dropped from support in April 2012.
-# There's no reason to continue supporting this option.
-#remap_vbd_dev = false
-
-#
-# Specify prefix to remap VBD dev to (ex. /dev/xvdb -> /dev/sdb).
-#
-# Related options:
-#
-# * If `remap_vbd_dev` is set to False this option has no impact.
-#  (string value)
-#remap_vbd_dev_prefix = sd
 
 #
 # Used to prevent attempts to attach VBDs locally, so Nova can
