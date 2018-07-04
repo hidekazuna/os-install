@@ -18,11 +18,11 @@ connection = mysql+pymysql://cinder:{{ CINDER_DBPASS }}@{{ db_host }}/cinder
 
 [keystone_authtoken]
 auth_uri = http://{{ api_host }}:5000
-auth_url = http://{{ api_host }}:35357
+auth_url = http://{{ api_host }}:5000
 memcached_servers = {{ api_host }}:11211
 auth_type = password
-project_domain_name = default
-user_domain_name = default
+project_domain_id = default
+user_domain_id = default
 project_name = service
 username = cinder
 password = {{ CINDER_PASS }}
