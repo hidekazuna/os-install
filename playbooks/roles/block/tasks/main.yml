@@ -5,12 +5,15 @@
   apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
   with_items:
     - cinder-volume
+  become: yes
 
 - name: edit cinder conf file
   template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf
+  become: yes
 
 - name: Restart the Block Storage service including its dependencies
   service: name={{ item }} state=restarted
   with_items:
     - tgt
     - cinder-volume
+  become: yes
