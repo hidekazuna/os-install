@@ -507,7 +507,7 @@ connection = mysql+pymysql://heat:{{ HEAT_DBPASS }}@{{ db_host }}/heat
 
 # Port of the admin Identity API endpoint. Deprecated, use identity_uri.
 # (integer value)
-#auth_port = 35357
+#auth_port = 5000
 
 # Protocol of the admin Identity API endpoint. Deprecated, use identity_uri.
 # (string value)
@@ -515,7 +515,7 @@ connection = mysql+pymysql://heat:{{ HEAT_DBPASS }}@{{ db_host }}/heat
 #auth_protocol = https
 
 # Complete admin Identity API endpoint. This should specify the unversioned
-# root endpoint e.g. https://localhost:35357/ (string value)
+# root endpoint e.g. https://localhost:5000/ (string value)
 #identity_uri = <None>
 
 # This option is deprecated and may be removed in a future release. Single
@@ -542,7 +542,7 @@ connection = mysql+pymysql://heat:{{ HEAT_DBPASS }}@{{ db_host }}/heat
 #auth_section = <None>
 
 auth_uri = http://{{ api_host }}:5000
-auth_url = http://{{ api_host }}:35357
+auth_url = http://{{ api_host }}:5000
 memcached_servers = {{ api_host }}:11211
 auth_type = password
 project_domain_name = default
@@ -553,13 +553,13 @@ password = {{ HEAT_PASS }}
 
 [trustee]
 auth_plugin = password
-auth_url = http://{{ api_host }}:35357
+auth_url = http://{{ api_host }}:5000
 username = heat
 password = {{ HEAT_PASS }}
 user_domain_name = default
 
 [clients_keystone]
-auth_uri = http://{{ api_host }}:35357
+auth_uri = http://{{ api_host }}:5000
 
 [ec2authtoken]
 auth_uri = http://{{ api_host }}:5000

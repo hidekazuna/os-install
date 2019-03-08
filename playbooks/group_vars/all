@@ -25,7 +25,7 @@ ADMIN_TOKEN: admin_token
 
 temp_auth_token:
   OS_TOKEN: "{{ ADMIN_TOKEN }}"
-  OS_URL: http://{{ api_host }}:35357/v3
+  OS_URL: http://{{ api_host }}:5000/v3
   OS_IDENTITY_API_VERSION: 3
 
 ADMIN_PASS: password
