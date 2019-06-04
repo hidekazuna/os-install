@@ -20,14 +20,10 @@
 - name: edit glance-api conf file
   template: src=glance-api.conf.j2 dest=/etc/glance/glance-api.conf
 
-- name: edit glance-registry conf file
-  template: src=glance-registry.conf.j2 dest=/etc/glance/glance-registry.conf
-
 - name: Populate the Image service database
   script: glance_db_sync.sh
 
 - name: Restart the Image service services
   service: name={{ item }} state=restarted
   with_items:
-    - glance-registry
     - glance-api
