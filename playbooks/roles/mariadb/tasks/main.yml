@@ -1,10 +1,10 @@
 ---
 
 - name: install mariadb
-  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
-  with_items:
-    - mariadb-server
-    - python-pymysql
+  apt:
+    pkg:
+      - 'mariadb-server'
+      - 'python-pymysql'
 
 - name: create mariadb configuration file
   template: src=99-openstack.cnf dest=/etc/mysql/mariadb.conf.d/99-openstack.cnf
