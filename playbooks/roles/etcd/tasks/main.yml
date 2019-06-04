@@ -1,62 +1,10 @@
 ---
 
-- name: create etc group
-  group:
-    name: etcd
-    state: present
-    system: yes
+- name: Install etcd
+  apt: name=etcd update_cache=yes cache_valid_time=3600
 
-- name: create etcd user
-  user:
-    name: etcd
-    shell: /bin/false
-    group: etcd
-    home: "/var/lib/etcd"
-    system: yes
-
-- name: create the necessary directories
-  file: path={{ item }} state=directory owner=etcd group=etcd mode=0755
-  with_items:
-    - /etc/etcd
-    - /var/lib/etcd
-
-- name: delete temporary directory
-  file: path=/tmp/etcd state=directory
-  state: absent
-
-- name: create temporary directory
-  file: path=/tmp/etcd state=directory
-
-- name: get etcd
-  get_url:
-    url: https://github.com/coreos/etcd/releases/download/{{ ETCD_VER }}/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
-    dest: /tmp/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
-
-- name: unarchive etcd
-  unarchive:
-    src: /tmp/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz
-    dest: /tmp/etcd
-    remote_src: yes
-
-- name: copy etcd file
-  copy:
-    src: /tmp/etcd/etcd-{{ ETCD_VER }}-linux-amd64/etcd
-    dest: /usr/bin/etcd
-    remote_src: yes
-    mode: 0755
-
-- name: copy etcdctl file
-  copy:
-    src: /tmp/etcd/etcd-{{ ETCD_VER }}-linux-amd64/etcdctl
-    dest: /usr/bin/etcdctl
-    remote_src: yes
-    mode: 0755
-
-- name: create etcd.conf.yml
-  template: src=etcd.conf.yml.j2 dest=/etc/etcd/etcd.conf.yml
-
-- name: create service file
-  template: src=etcd.service dest=/lib/systemd/system/etcd.service
+- name: copy hosts file
+  template: src=etcd.j2 dest=/etc/default/etcd
 
 - name: enable and start etcd
   systemd:
