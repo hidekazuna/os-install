@@ -1,9 +1,7 @@
 ---
 
 - name: install nova packages
-  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
-  with_items:
-    - nova-compute
+  apt: pkg=nova-compute update_cache=yes cache_valid_time=3600
 
 - name: edit nova conf file
   template: src=nova.conf.j2 dest=/etc/nova/nova.conf
@@ -24,9 +22,7 @@
 #
 
 - name: install neutron packages
-  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
-  with_items:
-    - neutron-linuxbridge-agent
+  apt: pkg=neutron-linuxbridge-agent update_cache=yes cache_valid_time=3600
 
 - name: edit neutron conf file
   template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf
