@@ -24,8 +24,8 @@
   sudo: no
 
 - name: install nova packages
-  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
-  with_items:
+  apt:
+    pkg:
     - nova-api
     - nova-conductor
     - nova-consoleauth

@@ -1,10 +1,8 @@
 ---
-
-- name: Install the Python MySQLDB module
-  apt: name=python-mysqldb
-
 - name: create database
-  mysql_db: name=keystone state=present
+  mysql_db:
+    name: keystone
+    state : present
 
 - name: create keystone user
   mysql_user: name=keystone host={{ item }} password={{ KEYSTONE_DBPASS }} priv=keystone.*:ALL state=present
@@ -13,8 +11,8 @@
     - "%"
 
 - name: install keystone packages
-  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
-  with_items:
+  apt:
+    pkg:
     - keystone
     - apache2
     - libapache2-mod-wsgi-py3
