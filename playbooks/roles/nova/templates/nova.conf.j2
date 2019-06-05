@@ -2912,7 +2912,7 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 # If set to true, the logging level will be set to DEBUG instead of the default
 # INFO level. (boolean value)
 # Note: This option can be changed without restarting.
-debug = true
+# debug = false
 
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
@@ -3507,10 +3507,10 @@ connection = mysql+pymysql://nova:{{ NOVA_DBPASS }}@{{ db_host }}/nova_api
 
 # Verbosity of SQL debugging information: 0=None, 100=Everything. (integer
 # value)
-connection_debug = 100
+# connection_debug = 0
 
 # Add Python stack traces to SQL as comment strings. (boolean value)
-connection_trace = true
+# connection_trace = false
 
 # If set, use this value for pool_timeout with SQLAlchemy. (integer value)
 #pool_timeout = <None>
@@ -7910,18 +7910,17 @@ password = {{ NOVA_PASS }}
 # (string value)
 #endpoint_override = <None>
 
-url = http://controller:9696
-auth_url = https://controller.hidekazuna.localdomain:5000
-cafile = /etc/ssl/certs/apache-selfsigned.crt
+url = http://{{ api_host }}:9696
+auth_url = http://{{ api_host }}:5000
 auth_type = password
-project_domain_name = default
-user_domain_name = default
+project_domain_name = Default
+user_domain_name = Default
 region_name = RegionOne
 project_name = service
 username = neutron
-password = password
+password = {{ NEUTRON_PASS }}
 service_metadata_proxy = true
-metadata_proxy_shared_secret = secret
+metadata_proxy_shared_secret = {{ METADATA_SECRET }}
 
 [notifications]
 #
