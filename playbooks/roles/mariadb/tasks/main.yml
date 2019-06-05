@@ -6,11 +6,36 @@
       - 'mariadb-server'
       - 'python-pymysql'
 
+- name: Write root login credentials
+  copy:
+    dest: /root/.my.cnf
+    owner: root
+    mode: 0600
+    content: |
+      [client]
+      user=root
+      password={{ db_root_password }}
+      socket=/var/run/mysqld/mysqld.sock
+
+- name: Ensure mysql root password is updated for all root accounts
+  mysql_user:
+    name: root
+    host: "{{ item }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    password: "{{ db_root_password }}"
+    check_implicit_admin: true
+  with_items:
+    - localhost
+    - "{{ ansible_hostname }}"
+    - 127.0.0.1
+    - ::1
+
 - name: create mariadb configuration file
   template: src=99-openstack.cnf dest=/etc/mysql/mariadb.conf.d/99-openstack.cnf
 
 - name: restart mariadb
   service: name=mysql state=restarted
+
 
 # TODO:mysql_secure_installation
 
