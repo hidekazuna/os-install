@@ -1,20 +1,19 @@
 ---
 
 ntp_server: ntp.jst.mfeed.ad.jp
-internal_ntp_server: controller
+internal_ntp_server: controller.hidekazuna.test
 
 controller_mgmt_ip: 10.0.0.11
 compute1_mgmt_ip: 10.0.0.31
-block1_mgmt_ip: 10.0.0.41
 
 mgmt_interface: eno1
-overlay_interface: enx3495db2ba9dd
+overlay_interface: eno1
 provider_interface: enx3495db2ba9dd
 
-api_host: controller
-rabbit_host: controller
-db_host: controller
-glance_host: controller
+api_host: controller.hidekazuna.test
+rabbit_host: controller.hidekazuna.test
+db_host: controller.hidekazuna.test
+glance_host: controller.hidekazuna.test
 
 virt_type: kvm
 time_zone: UTC
