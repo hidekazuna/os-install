@@ -22,7 +22,6 @@ db_root_password: password
 
 RABBIT_PASS: password
 KEYSTONE_DBPASS: password
-ADMIN_TOKEN: admin_token
 
 ADMIN_PASS: password
 DEMO_PASS: password
