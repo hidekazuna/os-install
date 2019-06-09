@@ -24,17 +24,15 @@ iscsi_protocol = iscsi
 iscsi_helper = tgtadm
 
 [keystone_authtoken]
-auth_uri = http://{{ api_host }}:5000
+www_authenticate_uri = http://{{ api_host }}:5000
 auth_url = http://{{ api_host }}:5000
 memcached_servers = {{ api_host }}:11211
 auth_type = password
-project_domain_id = default
-user_domain_id = default
+project_domain_name = Default
+user_domain_name = Default
 project_name = service
 username = cinder
 password = {{ CINDER_PASS }}
 
 [oslo_concurrency]
 lock_path = /var/lib/cinder/tmp
-
-
