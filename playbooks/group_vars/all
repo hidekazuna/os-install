@@ -6,17 +6,18 @@ internal_ntp_server: controller.hidekazuna.test
 controller_mgmt_ip: 10.0.0.11
 compute1_mgmt_ip: 10.0.0.31
 
-mgmt_interface: eno1
-overlay_interface: eno1
-provider_interface: enx3495db2ba9dd
+mgmt_interface: enp0s31f6
+overlay_interface: enp0s31f6
+provider_interface: enx3495db2bae9b
 
+api_scheme: https
 api_host: controller.hidekazuna.test
 rabbit_host: controller.hidekazuna.test
 db_host: controller.hidekazuna.test
 glance_host: controller.hidekazuna.test
 
 virt_type: kvm
-time_zone: UTC
+time_zone: Japan
 
 db_root_password: password
 
@@ -32,8 +33,9 @@ admin_openrc:
   OS_PROJECT_NAME: admin
   OS_USERNAME: admin
   OS_PASSWORD: "{{ ADMIN_PASS }}"
-  OS_AUTH_URL: http://{{ api_host }}:5000/v3
+  OS_AUTH_URL: "{{ api_scheme }}://{{ api_host }}:5000"
   OS_IDENTITY_API_VERSION: 3
+  OS_CACERT: /etc/ssl/private/myca/ca.pem
 
 demo_openrc:
   OS_PROJECT_DOMAIN_NAME: Default
@@ -41,8 +43,9 @@ demo_openrc:
   OS_PROJECT_NAME: demo
   OS_USERNAME: demo
   OS_PASSWORD: "{{ DEMO_PASS }}"
-  OS_AUTH_URL: http://{{ api_host }}:5000/v3
+  OS_AUTH_URL: "{{ api_scheme }}://{{ api_host }}:5000"
   OS_IDENTITY_API_VERSION: 3
+  OS_CACERT: /etc/ssl/private/myca/ca.pem
 
 GLANCE_DBPASS: password
 GLANCE_PASS: password

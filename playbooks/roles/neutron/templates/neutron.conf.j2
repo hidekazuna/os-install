@@ -913,8 +913,11 @@ connection = mysql+pymysql://neutron:{{ NEUTRON_DBPASS }}@{{ db_host }}/neutron
 # Config Section from which to load plugin specific options (string value)
 #auth_section = <None>
 
-www_authenticate_uri = http://{{ api_host }}:5000
-auth_url = http://{{ api_host }}:5000
+www_authenticate_uri = {{ api_scheme }}://{{ api_host }}:5000
+auth_url = {{ api_scheme }}://{{ api_host }}:5000
+{% if api_scheme == 'https' %}
+cafile = /etc/ssl/private/myca/ca.pem
+{% endif %}
 memcached_servers = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:11211
 auth_type = password
 project_domain_name = Default
@@ -1034,7 +1037,10 @@ password = {{ NEUTRON_PASS }}
 # Deprecated group/name - [nova]/user_name
 #username = <None>
 
-auth_url = http://{{ api_host }}:5000
+auth_url = {{ api_scheme }}://{{ api_host }}:5000
+{% if api_scheme == 'https' %}
+cafile = /etc/ssl/private/myca/ca.pem
+{% endif %}
 auth_type = password
 project_domain_name = Default
 user_domain_name = Default

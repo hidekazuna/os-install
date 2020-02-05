@@ -32,16 +32,38 @@
 - name: bootstrap the identity service
   command: |
     keystone-manage bootstrap --bootstrap-password {{ ADMIN_PASS }} \
-    --bootstrap-admin-url http://{{ api_host }}:5000/v3/ \
-    --bootstrap-internal-url http://{{ api_host }}:5000/v3/ \
-    --bootstrap-public-url http://{{ api_host }}:5000/v3/ \
+    --bootstrap-admin-url {{ api_scheme }}://{{ api_host }}:5000/v3/ \
+    --bootstrap-internal-url {{ api_scheme }}://{{ api_host }}:5000/v3/ \
+    --bootstrap-public-url {{ api_scheme }}://{{ api_host }}:5000/v3/ \
     --bootstrap-region-id RegionOne
 
 - name: edit apache conf file
   template: src=apache2.conf.j2 dest=/etc/apache2/apache2.conf
+  tags: conf
+
+- name: Enable ssl
+  command: a2enmod ssl
+  when: api_scheme == 'https'
+  tags: conf
+
+- name: create certificate files
+  file: path=/etc/ssl/private/myca state=directory
+  when: api_scheme == 'https'
+  tags: conf
+
+- name: edit certificate files
+  copy: src={{ item }} dest=/etc/ssl/private/myca
+  with_fileglob: 'myca/*'
+  when: api_scheme == 'https'
+  tags: conf
+
+- name: edit apache keystone conf file
+  template: src=wsgi-keystone.conf.j2 dest=/etc/apache2/sites-available
+  tags: conf
 
 - name: Restart the Apache HTTP server
   service: name=apache2 state=restarted
+  tags: conf
 
 - name: Create projects, users, and roles
   script: create_tenants_users_roles.sh {{ ADMIN_PASS }} {{ DEMO_PASS }}

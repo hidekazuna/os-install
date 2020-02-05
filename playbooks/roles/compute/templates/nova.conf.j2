@@ -5302,7 +5302,7 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 # "scheme://hostname:port[/path]"
 #   (i.e. "http://10.0.1.0:9292" or "https://my.glance.server/image").
 #  (list value)
-api_servers = http://{{ api_host }}:9292
+api_servers = {{ api_scheme }}://{{ api_host }}:9292
 
 #
 # Enable glance operation retries.
@@ -6297,7 +6297,10 @@ api_servers = http://{{ api_host }}:9292
 # Config Section from which to load plugin specific options (string value)
 #auth_section = <None>
 
-auth_url = http://{{ api_host }}:5000
+auth_url = {{ api_scheme }}://{{ api_host }}:5000
+{% if api_scheme == 'https' %}
+cafile = /etc/ssl/private/myca/ca.pem
+{% endif %}
 memcached_servers = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}:11211
 auth_type = password
 project_domain_name = Default
@@ -7909,8 +7912,11 @@ password = {{ NOVA_PASS }}
 # (string value)
 #endpoint_override = <None>
 
-url = http://{{ api_host }}:9696
-auth_url = http://{{ api_host }}:5000
+url = {{ api_scheme }}://{{ api_host }}:9696
+auth_url = {{ api_scheme }}://{{ api_host }}:5000
+{% if api_scheme == 'https' %}
+cafile = /etc/ssl/private/myca/ca.pem
+{% endif %}
 auth_type = password
 project_domain_name = Default
 user_domain_name = Default
@@ -8787,7 +8793,10 @@ project_domain_name = Default
 project_name = service
 auth_type = password
 user_domain_name = Default
-auth_url = http://{{ api_host }}:5000
+auth_url = {{ api_scheme }}://{{ api_host }}:5000
+{% if api_scheme == 'https' %}
+cafile = /etc/ssl/private/myca/ca.pem
+{% endif %}
 username = placement
 password = {{ PLACEMENT_PASS }}
 
@@ -10607,7 +10616,7 @@ server_proxyclient_address = $my_ip
 # * novncproxy_host
 # * novncproxy_port
 #  (uri value)
-novncproxy_base_url = http://{{ api_host }}:6080/vnc_auto.html
+novncproxy_base_url = {{ api_scheme }}://{{ api_host }}:6080/vnc_auto.html
 
 # DEPRECATED:
 # IP address or hostname that the XVP VNC console proxy should bind to.

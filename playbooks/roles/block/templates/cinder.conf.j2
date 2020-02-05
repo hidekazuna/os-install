@@ -12,7 +12,7 @@ volumes_dir = /var/lib/cinder/volumes
 enabled_backends = lvm
 transport_url = rabbit://openstack:{{ RABBIT_PASS }}@{{ api_host }}
 my_ip = {{ hostvars[inventory_hostname]['ansible_' + mgmt_interface]['ipv4']['address'] }}
-glance_api_servers = http://{{ api_host }}:9292
+glance_api_servers = {{ api_scheme }}://{{ api_host }}:9292
 
 [database]
 connection = mysql+pymysql://cinder:{{ CINDER_DBPASS }}@{{ db_host }}/cinder
@@ -24,8 +24,11 @@ iscsi_protocol = iscsi
 iscsi_helper = tgtadm
 
 [keystone_authtoken]
-www_authenticate_uri = http://{{ api_host }}:5000
-auth_url = http://{{ api_host }}:5000
+www_authenticate_uri = {{ api_scheme }}://{{ api_host }}:5000
+auth_url = {{ api_scheme }}://{{ api_host }}:5000
+{% if api_scheme == 'https' %}
+cafile = /etc/ssl/private/myca/ca.pem
+{% endif %}
 memcached_servers = {{ api_host }}:11211
 auth_type = password
 project_domain_name = Default

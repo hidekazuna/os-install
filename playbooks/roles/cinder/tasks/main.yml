@@ -10,7 +10,7 @@
     - "%"
 
 - name: create cinder service entry and endpoint
-  script: create_cinder_service_entity_and_api_endpoint.sh {{ CINDER_PASS }} {{ api_host }}
+  script: create_cinder_service_entity_and_api_endpoint.sh {{ CINDER_PASS }} {{ api_scheme }} {{ api_host }}
   environment: "{{ admin_openrc }}"
   become: no
 
@@ -22,15 +22,18 @@
 
 - name: edit cinder conf file
   template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf
+  tags: conf
 
 - name: Populate the Cinder database
   script: cinder_db_sync.sh
 
 - name: Restart the Compute API service
   service: name=nova-api state=restarted
+  tags: conf
 
 - name: Restart the Block Storage services
   service: name={{ item }} state=restarted
   with_items:
     - cinder-scheduler
     - apache2
+  tags: conf

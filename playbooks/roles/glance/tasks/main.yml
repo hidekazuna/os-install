@@ -10,7 +10,7 @@
     - "%"
 
 - name: create glance service entry and endpoint
-  script: create_glance_service_entity_and_api_endpoint.sh {{ GLANCE_PASS }} {{ api_host }}
+  script: create_glance_service_entity_and_api_endpoint.sh {{ GLANCE_PASS }} {{ api_scheme }} {{ api_host }}
   environment: "{{ admin_openrc }}"
   sudo: no
 
@@ -19,6 +19,7 @@
 
 - name: edit glance-api conf file
   template: src=glance-api.conf.j2 dest=/etc/glance/glance-api.conf
+  tags: conf
 
 - name: Populate the Image service database
   script: glance_db_sync.sh
@@ -27,3 +28,4 @@
   service: name={{ item }} state=restarted
   with_items:
     - glance-api
+  tags: conf
