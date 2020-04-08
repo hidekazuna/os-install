@@ -6,11 +6,11 @@ internal_ntp_server: controller.hidekazuna.test
 controller_mgmt_ip: 10.0.0.11
 compute1_mgmt_ip: 10.0.0.31
 
-mgmt_interface: enp0s31f6
-overlay_interface: enp0s31f6
-provider_interface: enx3495db2bae9b
+mgmt_interface: enp2s0
+overlay_interface: enp2s0
+provider_interface: enp3s0
 
-api_scheme: https
+api_scheme: http
 api_host: controller.hidekazuna.test
 rabbit_host: controller.hidekazuna.test
 db_host: controller.hidekazuna.test
@@ -45,7 +45,6 @@ demo_openrc:
   OS_PASSWORD: "{{ DEMO_PASS }}"
   OS_AUTH_URL: "{{ api_scheme }}://{{ api_host }}:5000"
   OS_IDENTITY_API_VERSION: 3
-  OS_CACERT: /etc/ssl/private/myca/ca.pem
 
 GLANCE_DBPASS: password
 GLANCE_PASS: password

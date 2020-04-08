@@ -1,21 +1,26 @@
 ---
 
 - name: install nova packages
+  become: true
   apt: pkg=nova-compute update_cache=yes cache_valid_time=3600
 
 - name: edit nova conf file
+  become: true
   template: src=nova.conf.j2 dest=/etc/nova/nova.conf
   tags: conf
 
 - name: edit nova-compute.conf file
+  become: true
   template: src=nova-compute.conf.j2 dest=/etc/nova/nova-compute.conf
   tags: conf
 
 - name: Restart the Compute service services
+  become: true
   service: name=nova-compute state=restarted
   tags: conf
 
 - name: add the compute node to the cell database
+  become: true
   command: su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova
   delegate_to: "{{ api_host }}"
   environment: "{{ admin_openrc }}"
@@ -25,17 +30,21 @@
 #
 
 - name: install neutron packages
+  become: true
   apt: pkg=neutron-linuxbridge-agent update_cache=yes cache_valid_time=3600
 
 - name: edit neutron conf file
+  become: true
   template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf
   tags: conf
 
 - name: Configure the Linux bridge agent
+  become: true
   template: src=linuxbridge_agent.ini.j2 dest=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
   tags: conf
 
 - name: Restart the compute service and linux bridge agent
+  become: true
   service: name={{ item }} state=restarted
   with_items:
     - nova-compute

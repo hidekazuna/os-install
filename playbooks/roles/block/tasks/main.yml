@@ -2,15 +2,18 @@
 # Prerequites on your own
 
 - name: install the packages
+  become: true
   apt:
     pkg:
     - cinder-volume
 
 - name: edit cinder conf file
+  become: true
   template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf
   tags: conf
 
 - name: Restart the Block Storage service including its dependencies
+  become: true
   service: name={{ item }} state=restarted
   with_items:
     - tgt

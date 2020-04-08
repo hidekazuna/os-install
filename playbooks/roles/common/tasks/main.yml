@@ -1,18 +1,19 @@
 ---
 
 - name: Install ntp
+  become: true
   apt: name=chrony update_cache=yes cache_valid_time=3600
 
-- name: copy hosts file
-  template: src=hosts.j2 dest=/etc/hosts
-
 - name: enable openstack repository
+  become: true
   command: apt-add-repository cloud-archive:stein -y
 
 - name: upgrade packages
+  become: true
   apt: update_cache=yes upgrade=dist
 
 - name: Install the OpenStack client
+  become: true
   apt: name=python3-openstackclient update_cache=yes cache_valid_time=3600
 
 
