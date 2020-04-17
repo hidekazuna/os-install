@@ -1,6 +1,13 @@
 ---
 # Prerequites on your own
 
+- name: install prerequisites packages
+  become: true
+  apt:
+    pkg:
+      - lvm2
+      - thin-provisioning-tools
+
 - name: install the packages
   become: true
   apt:
