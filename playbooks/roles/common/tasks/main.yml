@@ -1,8 +1,12 @@
 ---
 
-- name: Install ntp
+- name: Set up time synchronization
   become: true
-  apt: name=chrony update_cache=yes cache_valid_time=3600
+  command: timedatectl set-ntp true
+
+- name: Set up timezone
+  become: true
+  command: timedatectl set-timezone Asia/Tokyo
 
 - name: enable openstack repository
   become: true

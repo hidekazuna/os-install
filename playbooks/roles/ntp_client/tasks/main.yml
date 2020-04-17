@@ -1,6 +1,0 @@
----
-
-- name: copy chrony.conf file
-  become: true
-  copy: src=chrony.conf.j2 dest=/etc/chrony/chrony.conf
-  notify: restart ntp

@@ -1,7 +1,6 @@
 - hosts: controller
   roles:
     - common
-    - ntp_server
     - mariadb
     - rabbitmq
     - memcached
